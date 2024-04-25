@@ -35,5 +35,6 @@ read_clean_liu = function(file, region) {
   terra::units(liu_agb) <-  "Mg/ha"
   
   # Project and Crop
+  region <- project(region, liu_agb)
   liu_agb |> crop(region) |> mask(region)
 }
