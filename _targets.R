@@ -31,8 +31,9 @@ files <- tar_plan(
 rasters <- tar_plan(
   tar_terra_rast(chopping_agb, read_clean_chopping(chopping_file, az)),
   tar_terra_rast(xu_agb, read_clean_xu(xu_file, az)),
-  tar_terra_rast(liu_agb, read_clean_liu(liu_file, az))
-  # tar_terra_rast(esa_agb, read_clean_esa(esa_files, az)),'
+  tar_terra_rast(liu_agb, read_clean_liu(liu_file, az)),
+  tar_terra_rast(esa_agb, read_clean_esa(esa_files, az)),
+  tar_terra_rast(ltgnn_agb, read_clean_lt_gnn(ltgnn_files, az))
 )
 
 list(files, rasters)
