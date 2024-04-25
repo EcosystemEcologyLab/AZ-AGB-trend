@@ -10,7 +10,7 @@ library(geotargets)
 
 # Set target options:
 tar_option_set(
-  packages = c("ncdf4", "terra", "fs", "purrr"), # Packages that your targets need for their tasks.
+  packages = c("ncdf4", "terra", "fs", "purrr", "ncdf4"), # Packages that your targets need for their tasks.
   controller = crew::crew_controller_local(workers = 2, seconds_idle = 60)
 )
 
@@ -29,7 +29,9 @@ files <- tar_plan(
 )
 
 rasters <- tar_plan(
-  tar_terra_rast(chopping_agb, read_clean_chopping(chopping_file, az))
+  tar_terra_rast(chopping_agb, read_clean_chopping(chopping_file, az)),
+  tar_terra_rast(xu_agb, read_clean_xu(xu_file, az)),
+  tar_terra_rast(liu_agb, read_clean_liu(liu_file, az))
   # tar_terra_rast(esa_agb, read_clean_esa(esa_files, az)),'
 )
 
