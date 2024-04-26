@@ -4,7 +4,7 @@
 #' @param region SpatVector of AZ
 #' @return a SpatRaster object
 #' 
-read_clean_lt_gnn <- function(files, region) {
+read_clean_ltgnn <- function(files, region) {
   
   tifs <- 
     files |> 
@@ -24,10 +24,11 @@ read_clean_lt_gnn <- function(files, region) {
     terra::merge() #slow step
   #I did some benchmarking and of vrt(), merge(), and mosaic(), merge() is the fastest.
   
-  varnames(tiles_combined) <- "AGB"
+  terra::varnames(tiles_combined) <- "AGB"
   names(tiles_combined) <- 1990:2017
-  units(tiles_combined) <- "Mg/ha"
+  terra::units(tiles_combined) <- "Mg/ha"
 
   # Project and crop
-  tiles_combined |> crop(region) |> mask(region)
+  region <- terra::project(region, tiles_combined)
+  tiles_combined |> terra::crop(region) |> terra::mask(region)
 }
