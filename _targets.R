@@ -7,10 +7,11 @@
 library(targets)
 library(tarchetypes)
 library(geotargets)
+library(rlang)
 
 # Set target options:
 tar_option_set(
-  packages = c("ncdf4", "terra", "fs", "purrr", "ncdf4"), # Packages that your targets need for their tasks.
+  packages = c("ncdf4", "terra", "fs", "purrr", "ncdf4", "car"), # Packages that your targets need for their tasks.
   controller = crew::crew_controller_local(workers = 2, seconds_idle = 60)
 )
 
@@ -33,7 +34,30 @@ rasters <- tar_plan(
   tar_terra_rast(xu_agb, read_clean_xu(xu_file, az)),
   tar_terra_rast(liu_agb, read_clean_liu(liu_file, az)),
   tar_terra_rast(esa_agb, read_clean_esa(esa_files, az)),
-  tar_terra_rast(ltgnn_agb, read_clean_lt_gnn(ltgnn_files, az))
+  tar_terra_rast(ltgnn_agb, read_clean_ltgnn(ltgnn_files, az))
 )
 
-list(files, rasters)
+slopes <- tar_plan(
+  tar_map(
+    #for each data product
+    values = list(product = syms(c(
+      "chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb"
+    ))),
+    #calculate slopes
+    tar_terra_rast(
+      slope,
+      calc_slopes(product)
+    ),
+    # Then plot the slopes and export a .png
+    tar_target(
+      slope_plot,
+      plot_slopes(slope, az),
+      #packages only needed for plotting step:
+      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext")
+    )
+  )
+)
+
+#TODO plot a multipanel figure with common colorbar legend using plot_slopes_all()
+
+list(files, rasters, slopes)
