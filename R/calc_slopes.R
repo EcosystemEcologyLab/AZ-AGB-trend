@@ -17,6 +17,7 @@ calc_slopes <- function(rast, p_adj_method = "fdr") {
   }
   
   slope_rast <- app(rast, getTrend)
+  # p.adjust uses the number of non-NA p-values for `n`, so I don't need to worry about all the NAs here
   slope_rast[[2]] <- app(slope_rast[[2]], p.adjust, method = p_adj_method)
   names(slope_rast) <- c("slope", "p.value")
   
