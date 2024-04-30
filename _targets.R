@@ -17,8 +17,8 @@ hpc <- grepl("hpc\\.arizona\\.edu", slurm_host) & !grepl("ood", slurm_host)
 # If on HPC, use SLURM jobs for parallel workers
 if (isTRUE(hpc)) {
   controller <- crew.cluster::crew_controller_slurm(
-    workers = 3, #TODO increase for production
-    seconds_idle = 300, #  time until workers are shut down after idle
+    workers = 4,
+    seconds_idle = 300, # time until workers are shut down after idle
     garbage_collection = TRUE, # run garbage collection between tasks
     launch_max = 5L, # number of unproductive launched workers until error
     slurm_partition = "standard",
