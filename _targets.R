@@ -84,7 +84,7 @@ slopes <- tar_plan(
       slope_plot,
       plot_slopes(slope, target_name = name, region = az),
       #packages only needed for plotting step:
-      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext", "magick")
+      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext")
     )
   )
 )

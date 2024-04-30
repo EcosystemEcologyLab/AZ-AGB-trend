@@ -20,8 +20,6 @@
 #' @param outdir path to save file out to
 #' @param limits optional, provide a length 2 vector to set limits on the fill scale
 #' @param ... other arguments passed to ggsave, e.g. `width` and `height`
-#'   (although note that output images have exess whitespace trimmed by
-#'   `trim_image()`)
 #'
 #' @return when save=TRUE, returns a file path (invisibly), otherwise returns a ggplot object
 #'
@@ -71,8 +69,7 @@ plot_slopes <- function(slope_rast, region, target_name = NULL, save = TRUE, ext
   if (isTRUE(save)) {
     
     filename <- fs::path_ext_set(target_name, ext)
-    ggsave(filename = filename, plot = p, path = outdir, ...) |> 
-      trim_image()
+    ggsave(filename = filename, plot = p, path = outdir, ...)
     
     #return
     return(invisible(fs::path(outdir, filename)))
