@@ -495,6 +495,25 @@
       ],
       "Hash": "771993945c468c1eb98693c71640b268"
     },
+    "crew.cluster": {
+      "Package": "crew.cluster",
+      "Version": "0.3.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "R6",
+        "crew",
+        "lifecycle",
+        "ps",
+        "rlang",
+        "utils",
+        "vctrs",
+        "xml2",
+        "yaml"
+      ],
+      "Hash": "4a6a569e1f2b56ce2419d412598ab1b4"
+    },
     "curl": {
       "Package": "curl",
       "Version": "5.2.1",
