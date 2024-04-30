@@ -35,7 +35,7 @@ if (isTRUE(hpc)) {
   )
   
 } else { # If local or on OOD session, use multiple R sessions for workers
-  controller <- crew::crew_controller_local(workers = 3, seconds_idle = 60)
+  controller <- crew::crew_controller_local(workers = 2, seconds_idle = 60)
 }
 
 # Set target options:
