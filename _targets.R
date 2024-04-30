@@ -42,7 +42,9 @@ slopes <- tar_plan(
     #for each data product
     values = list(product = syms(c(
       "chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb"
-    ))),
+    )),
+    name = c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
+    ),
     #calculate slopes
     tar_terra_rast(
       slope,
@@ -51,13 +53,15 @@ slopes <- tar_plan(
     # Then plot the slopes and export a .png
     tar_target(
       slope_plot,
-      plot_slopes(slope, az),
+      plot_slopes(slope, target_name = name, region = az),
       #packages only needed for plotting step:
       packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext", "magick")
     )
   )
 )
 
-#TODO plot a multipanel figure with common colorbar legend using plot_slopes_all()
+# TODO plot a multipanel figure with common colorbar legend using
+# plot_slopes_all(). Or maybe don't since they're all different time periods and
+# it doesn't make sense to compare them that way?
 
 list(files, rasters, slopes)

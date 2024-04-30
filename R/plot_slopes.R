@@ -30,6 +30,7 @@
 #' 
 plot_slopes <- function(slope_rast, region, target_name = NULL, save = TRUE, ext = "png", outdir = "output/figs", limits = NULL, ...) {
   if (is.null(target_name)) {
+    #varnames are lost in current version of geotargets, so this is necessary
     target_name <- varnames(slope_rast)
   }
   title <- dplyr::case_when(
