@@ -8,11 +8,40 @@ library(targets)
 library(tarchetypes)
 library(geotargets)
 library(rlang)
+library(crew)
+library(crew.cluster)
+
+# Detect whether you're on HPC & not with an Open On Demand session (which cannot submit SLURM jobs) and set appropriate controller
+slurm_host <- Sys.getenv("SLURM_SUBMIT_HOST")
+hpc <- grepl("hpc\\.arizona\\.edu", slurm_host) & !grepl("ood", slurm_host)
+# If on HPC, use SLURM jobs for parallel workers
+if (isTRUE(hpc)) {
+  controller <- crew.cluster::crew_controller_slurm(
+    workers = 4,
+    seconds_idle = 300, # time until workers are shut down after idle
+    garbage_collection = TRUE, # run garbage collection between tasks
+    launch_max = 5L, # number of unproductive launched workers until error
+    slurm_partition = "standard",
+    slurm_time_minutes = 60, #wall time for each worker
+    slurm_log_output = "logs/crew_log_%A.out",
+    slurm_log_error = "logs/crew_log_%A.err",
+    slurm_memory_gigabytes_per_cpu = 5,
+    slurm_cpus_per_task = 3, #use 3 cpus per worker
+    script_lines = c(
+      "#SBATCH --account davidjpmoore",
+      "module load gdal/3.8.5 R/4.3 eigen/3.4.0"
+      #add additional lines to the SLURM job script as necessary here
+    )
+  )
+  
+} else { # If local or on OOD session, use multiple R sessions for workers
+  controller <- crew::crew_controller_local(workers = 2, seconds_idle = 60)
+}
 
 # Set target options:
 tar_option_set(
   packages = c("ncdf4", "terra", "fs", "purrr", "ncdf4", "car"), # Packages that your targets need for their tasks.
-  controller = crew::crew_controller_local(workers = 2, seconds_idle = 60)
+  controller = controller
 )
 
 # Run the R scripts in the R/ folder with your custom functions:
