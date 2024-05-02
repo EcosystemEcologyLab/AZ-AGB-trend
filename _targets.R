@@ -48,13 +48,19 @@ tar_option_set(
 tar_source()
 # tar_source("other_functions.R") # Source other scripts as needed.
 
+#use local data in this project
+root <- "data"
+
+#use data on mounted "snow" drive (super slow and not advisable)
+# root <- "/Volumes/moore/"
+
 # Track files
 files <- tar_plan(
-  tar_file(esa_files, dir_ls("data/ESA_CCI/", glob = "*.tif*")),
-  tar_file(chopping_file, "data/Chopping/MISR_agb_estimates_20002021.tif"),
-  tar_file(liu_file, "data/Liu/Aboveground_Carbon_1993_2012.nc"),
-  tar_file(xu_file, "data/Xu/test10a_cd_ab_pred_corr_2000_2019_v2.tif"),
-  tar_file(ltgnn_files, fs::dir_ls("data/LT_GNN", glob = "*.zip")),
+  tar_file(esa_files, dir_ls(path(root, "ESA_CCI/"), glob = "*.tif*")),
+  tar_file(chopping_file, path(root, "Chopping/MISR_agb_estimates_20002021.tif")),
+  tar_file(liu_file, path(root, "Liu/Aboveground_Carbon_1993_2012.nc")),
+  tar_file(xu_file, path(root, "Xu/test10a_cd_ab_pred_corr_2000_2019_v2.tif")),
+  tar_file(ltgnn_files, fs::dir_ls(path(root, "LT_GNN"), glob = "*.zip")),
   tar_terra_vect(az, get_az())
 )
 
