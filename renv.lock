@@ -471,7 +471,7 @@
     },
     "crew": {
       "Package": "crew",
-      "Version": "0.9.0",
+      "Version": "0.9.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -493,7 +493,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "771993945c468c1eb98693c71640b268"
+      "Hash": "10b6dadc3e0ac3d80e34277ae13c0bab"
     },
     "crew.cluster": {
       "Package": "crew.cluster",
@@ -1174,14 +1174,14 @@
     },
     "mirai": {
       "Package": "mirai",
-      "Version": "0.12.1",
+      "Version": "0.13.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "nanonext"
       ],
-      "Hash": "bd1a289ee0b2a824e6715b996bf949eb"
+      "Hash": "12a6c1acf684492a0f604407f9aacbf6"
     },
     "munsell": {
       "Package": "munsell",
@@ -1196,13 +1196,14 @@
     },
     "nanonext": {
       "Package": "nanonext",
-      "Version": "0.13.0",
+      "Version": "1.0.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
-        "R"
+        "R",
+        "later"
       ],
-      "Hash": "f813386668d4e86e6c70c080dbb3e9e2"
+      "Hash": "bc33d655d4141d99012ef86efaebd978"
     },
     "ncdf4": {
       "Package": "ncdf4",
@@ -1794,16 +1795,16 @@
     },
     "tarchetypes": {
       "Package": "tarchetypes",
-      "Version": "0.7.12",
+      "Version": "0.9.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
-        "digest",
         "dplyr",
         "fs",
         "parallel",
         "rlang",
+        "secretbase",
         "targets",
         "tibble",
         "tidyselect",
@@ -1811,19 +1812,13 @@
         "vctrs",
         "withr"
       ],
-      "Hash": "27cbcc70b864c0df53cd454f062ac581"
+      "Hash": "094a74cdaa048b727d52aebf4c80ed7a"
     },
     "targets": {
       "Package": "targets",
-      "Version": "1.7.0.9000",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "targets",
-      "RemoteUsername": "ropensci",
-      "RemotePkgRef": "ropensci/targets",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "adc116f8aa5582320226ef8d62b1fea42450e520",
+      "Version": "1.7.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
@@ -1845,7 +1840,7 @@
         "vctrs",
         "yaml"
       ],
-      "Hash": "d5e413993d13f10f6926eaa1a10da545"
+      "Hash": "27ee47827a89430be0d38b78c0cb8fb7"
     },
     "terra": {
       "Package": "terra",
@@ -1892,7 +1887,7 @@
       "Package": "tibble",
       "Version": "3.2.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "fansi",
