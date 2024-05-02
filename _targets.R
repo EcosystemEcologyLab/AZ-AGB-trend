@@ -56,12 +56,12 @@ root <- "data"
 
 # Track files
 files <- tar_plan(
-  tar_file(esa_files, dir_ls(path(root, "ESA_CCI/"), glob = "*.tif*")),
-  tar_file(chopping_file, path(root, "Chopping/MISR_agb_estimates_20002021.tif")),
-  tar_file(liu_file, path(root, "Liu/Aboveground_Carbon_1993_2012.nc")),
-  tar_file(xu_file, path(root, "Xu/test10a_cd_ab_pred_corr_2000_2019_v2.tif")),
-  tar_file(ltgnn_files, fs::dir_ls(path(root, "LT_GNN"), glob = "*.zip")),
-  tar_terra_vect(az, get_az())
+  tar_file(esa_files, dir_ls(path(root, "ESA_CCI/"), glob = "*.tif*"), deployment = "main"),
+  tar_file(chopping_file, path(root, "Chopping/MISR_agb_estimates_20002021.tif"), deployment = "main"),
+  tar_file(liu_file, path(root, "Liu/Aboveground_Carbon_1993_2012.nc"), deployment = "main"),
+  tar_file(xu_file, path(root, "Xu/test10a_cd_ab_pred_corr_2000_2019_v2.tif"), deployment = "main"),
+  tar_file(ltgnn_files, fs::dir_ls(path(root, "LT_GNN"), glob = "*.zip"), deployment = "main"),
+  tar_terra_vect(az, get_az(), deployment = "main")
 )
 
 rasters <- tar_plan(
