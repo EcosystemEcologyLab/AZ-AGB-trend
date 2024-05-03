@@ -1,0 +1,98 @@
+---
+title: "AZ Trends in AGB"
+author: "Eric R. Scott"
+format: 
+  html:
+    code-fold: true
+editor: visual
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(targets)
+library(here)
+library(tidyterra)
+library(ggplot2)
+library(purrr)
+library(ragg)
+library(ggridges)
+library(ggdist)
+
+tar_load(starts_with("slope"), store = here("_targets"))
+
+```
+
+```{r}
+#| label: wrangle
+
+df <- 
+  list(`Xu et al.` = slope_xu_agb_xu_agb,
+       `Liu et al.` = slope_liu_agb_liu_agb, 
+       `chopping` = slope_chopping_agb_chopping_agb) |> 
+  purrr::map(\(x) {
+    x[["slope"]] |> as_tibble(na.rm = TRUE)
+  }) |> 
+  list_rbind(names_to = "product")
+
+```
+
+Visualizing the distribution of values among these datasets is tricky for two reasons:
+
+1.  Their resolution and therefore sample size varies by several orders of magnitude.
+2.  In some products, the most common slope *by far* is 0.
+
+```{r}
+df |> count(product)
+```
+
+```{r}
+df |> 
+  group_by(product) |> 
+  summarize(`% slopes = 0` = sum(slope == 0)/dplyr::n() *100)
+
+df |> 
+  group_by(product) |> 
+  summarize(`% slopes near 0` = sum(dplyr::near(slope, 0, tol = 0.01)/dplyr::n())*100)
+```
+
+## Boxplots
+
+Standard boxplots are probably not a good fit since any values outside of 1.5 \* IQR are "outliers" and because there are so many data points, a lot are "outliers"
+
+```{r}
+p <- ggplot(df, aes(x = slope, y = product)) + labs(x = "∆Mg/Ha/yr")
+
+p + geom_boxplot()
+```
+
+You can remove "outliers", but I'm not sure that's the best idea.
+Chopping et al. has so many points, that it looks like all non-zero points are "outliers".
+
+```{r}
+p + geom_boxplot(outliers = FALSE)
+```
+
+## Violin plots / Density plots
+
+These don't look great because even if you were to add lines for median and IQR, you wouldn't be able to see them.
+
+```{r}
+p + geom_violin()
+```
+
+```{r}
+p + geom_density_ridges()
+```
+
+## Point interval
+
+A point interval plot from `ggdist` shows the median (point) and different intervals.
+Here I'm showing the range of the 80th percentile (fattest line), and 95th percentile of data (thinnest line).
+These quantiles are arbitrary and can be changed (both what quantiles and how many).
+
+```{r}
+p + stat_pointinterval(.width = c(.8, .95))
+```
