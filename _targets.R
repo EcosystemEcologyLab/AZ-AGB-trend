@@ -95,8 +95,5 @@ slopes <- tar_plan(
   )
 )
 
-# TODO plot a multipanel figure with common colorbar legend using
-# plot_slopes_all(). Or maybe don't since they're all different time periods and
-# it doesn't make sense to compare them that way?
 
 list(files, rasters, slopes)
