@@ -15,33 +15,56 @@ library(crew.cluster)
 slurm_host <- Sys.getenv("SLURM_SUBMIT_HOST")
 hpc <- grepl("hpc\\.arizona\\.edu", slurm_host) & !grepl("ood", slurm_host)
 # If on HPC, use SLURM jobs for parallel workers
-if (isTRUE(hpc)) {
-  controller <- crew.cluster::crew_controller_slurm(
-    workers = 4,
-    seconds_idle = 300, # time until workers are shut down after idle
-    garbage_collection = TRUE, # run garbage collection between tasks
-    launch_max = 5L, # number of unproductive launched workers until error
-    slurm_partition = "standard",
-    slurm_time_minutes = 60, #wall time for each worker
-    slurm_log_output = "logs/crew_log_%A.out",
-    slurm_log_error = "logs/crew_log_%A.err",
-    slurm_memory_gigabytes_per_cpu = 5,
-    slurm_cpus_per_task = 6, # mainly to increase memory per worker
-    script_lines = c(
-      "#SBATCH --account davidjpmoore",
-      "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
-      #add additional lines to the SLURM job script as necessary here
-    )
+
+controller_light <- crew.cluster::crew_controller_slurm(
+  name = "hpc_light",
+  workers = 4,
+  seconds_idle = 300, # time until workers are shut down after idle
+  garbage_collection = TRUE, # run garbage collection between tasks
+  launch_max = 5L, # number of unproductive launched workers until error
+  slurm_partition = "standard",
+  slurm_time_minutes = 60, #wall time for each worker
+  slurm_log_output = "logs/crew_log_%A.out",
+  slurm_log_error = "logs/crew_log_%A.err",
+  slurm_memory_gigabytes_per_cpu = 5,
+  slurm_cpus_per_task = 4,
+  script_lines = c(
+    "#SBATCH --account davidjpmoore",
+    "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
+    #add additional lines to the SLURM job script as necessary here
   )
-  
-} else { # If local or on OOD session, use multiple R sessions for workers
-  controller <- crew::crew_controller_local(workers = 2, seconds_idle = 60)
-}
+)
+
+controller_heavy <- crew.cluster::crew_controller_slurm(
+  name = "hpc_heavy",
+  workers = 4,
+  seconds_idle = 300, # time until workers are shut down after idle
+  garbage_collection = TRUE, # run garbage collection between tasks
+  launch_max = 5L, # number of unproductive launched workers until error
+  slurm_partition = "standard",
+  slurm_time_minutes = 60, #wall time for each worker
+  slurm_log_output = "logs/crew_log_%A.out",
+  slurm_log_error = "logs/crew_log_%A.err",
+  slurm_memory_gigabytes_per_cpu = 5,
+  slurm_cpus_per_task = 8, # mainly to increase memory per worker
+  script_lines = c(
+    "#SBATCH --account davidjpmoore",
+    "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
+    #add additional lines to the SLURM job script as necessary here
+  )
+)
+
+controller_local <- 
+  crew::crew_controller_local(name = "local", workers = 2, seconds_idle = 60)
 
 # Set target options:
 tar_option_set(
   packages = c("ncdf4", "terra", "fs", "purrr", "ncdf4", "car"), # Packages that your targets need for their tasks.
-  controller = controller
+  controller = crew_controller_group(controller_local, controller_heavy, controller_light),
+  #if on HPC use "hpc_light" controller by default, otherwise use "local"
+  resources = tar_resources(
+    crew = tar_resources_crew(controller = ifelse(hpc, "hpc_light", "local"))
+  )
 )
 
 # Run the R scripts in the R/ folder with your custom functions:
@@ -68,8 +91,20 @@ rasters <- tar_plan(
   tar_terra_rast(chopping_agb, read_clean_chopping(chopping_file, az)),
   tar_terra_rast(xu_agb, read_clean_xu(xu_file, az)),
   tar_terra_rast(liu_agb, read_clean_liu(liu_file, az)),
-  tar_terra_rast(esa_agb, read_clean_esa(esa_files, az)),
-  tar_terra_rast(ltgnn_agb, read_clean_ltgnn(ltgnn_files, az))
+  tar_terra_rast(
+    esa_agb, 
+    read_clean_esa(esa_files, az),
+    resources = tar_resources(
+      crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+    )
+  ),
+  tar_terra_rast(
+    ltgnn_agb,
+    read_clean_ltgnn(ltgnn_files, az),
+    resources = tar_resources(
+      crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+    )
+  )
 )
 
 slopes <- tar_plan(
