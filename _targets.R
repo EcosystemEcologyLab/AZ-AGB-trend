@@ -105,6 +105,13 @@ rasters <- tar_plan(
     resources = tar_resources(
       crew = tar_resources_crew(controller = "hpc_heavy")
     )
+  ),
+  tar_target(
+    testing_heavy,
+    iris,
+    resources = tar_resources(
+      crew = tar_resources_crew(controller = "hpc_heavy")
+    )
   )
 )
 
