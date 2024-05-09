@@ -23,7 +23,7 @@ controller_light <- crew.cluster::crew_controller_slurm(
   garbage_collection = TRUE, # run garbage collection between tasks
   launch_max = 5L, # number of unproductive launched workers until error
   slurm_partition = "standard",
-  slurm_time_minutes = 60, #wall time for each worker
+  slurm_time_minutes = 1200, #wall time for each worker
   slurm_log_output = "logs/crew_log_%A.out",
   slurm_log_error = "logs/crew_log_%A.err",
   slurm_memory_gigabytes_per_cpu = 5,
@@ -42,7 +42,7 @@ controller_heavy <- crew.cluster::crew_controller_slurm(
   garbage_collection = TRUE, # run garbage collection between tasks
   launch_max = 5L, # number of unproductive launched workers until error
   slurm_partition = "standard",
-  slurm_time_minutes = 60, #wall time for each worker
+  slurm_time_minutes = 1200, #wall time for each worker
   slurm_log_output = "logs/crew_log_%A.out",
   slurm_log_error = "logs/crew_log_%A.err",
   slurm_memory_gigabytes_per_cpu = 32,
