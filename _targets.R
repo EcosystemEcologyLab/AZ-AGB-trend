@@ -27,7 +27,7 @@ controller_light <- crew.cluster::crew_controller_slurm(
   slurm_log_output = "logs/crew_log_%A.out",
   slurm_log_error = "logs/crew_log_%A.err",
   slurm_memory_gigabytes_per_cpu = 5,
-  slurm_cpus_per_task = 4,
+  slurm_cpus_per_task = 4, #total 20gb RAM
   script_lines = c(
     "#SBATCH --account davidjpmoore",
     "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
@@ -45,10 +45,11 @@ controller_heavy <- crew.cluster::crew_controller_slurm(
   slurm_time_minutes = 60, #wall time for each worker
   slurm_log_output = "logs/crew_log_%A.out",
   slurm_log_error = "logs/crew_log_%A.err",
-  slurm_memory_gigabytes_per_cpu = 5,
-  slurm_cpus_per_task = 8, # mainly to increase memory per worker
+  slurm_memory_gigabytes_per_cpu = 32,
+  slurm_cpus_per_task = 2, # total 64gb RAM
   script_lines = c(
     "#SBATCH --account davidjpmoore",
+    "#SBATCH --constraint=hi_mem", #use high-memory nodes
     "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
     #add additional lines to the SLURM job script as necessary here
   )
@@ -116,9 +117,13 @@ slopes <- tar_plan(
     name = c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
     ),
     #calculate slopes
+    #only some of these need high memory nodes, but not sure how to specify that when written in tar_map()
     tar_terra_rast(
-      slope,
-      calc_slopes(product)
+      slope, 
+      calc_slopes(product),
+      resources = tar_resources(
+        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      )
     ),
     # Then plot the slopes and export a .png
     tar_target(
