@@ -96,14 +96,14 @@ rasters <- tar_plan(
     esa_agb, 
     read_clean_esa(esa_files, az),
     resources = tar_resources(
-      crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      crew = tar_resources_crew(controller = "hpc_heavy")
     )
   ),
   tar_terra_rast(
     ltgnn_agb,
     read_clean_ltgnn(ltgnn_files, az),
     resources = tar_resources(
-      crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      crew = tar_resources_crew(controller = "hpc_heavy")
     )
   )
 )
@@ -122,7 +122,7 @@ slopes <- tar_plan(
       slope, 
       calc_slopes(product),
       resources = tar_resources(
-        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+        crew = tar_resources_crew(controller = "hpc_heavy")
       )
     ),
     # Then plot the slopes and export a .png
