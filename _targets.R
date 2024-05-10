@@ -37,7 +37,7 @@ controller_light <- crew.cluster::crew_controller_slurm(
 
 controller_heavy <- crew.cluster::crew_controller_slurm(
   name = "hpc_heavy",
-  workers = 4,
+  workers = 2,
   seconds_idle = 300, # time until workers are shut down after idle
   garbage_collection = TRUE, # run garbage collection between tasks
   launch_max = 5L, # number of unproductive launched workers until error
