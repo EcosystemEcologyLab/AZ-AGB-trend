@@ -65,7 +65,13 @@ tar_option_set(
   #if on HPC use "hpc_light" controller by default, otherwise use "local"
   resources = tar_resources(
     crew = tar_resources_crew(controller = ifelse(hpc, "hpc_light", "local"))
-  )
+  ),
+  # improve memory performance
+  memory = "transient", 
+  garbage_collection = TRUE,
+  # allow workers to access _targets/ store directly
+  storage = "worker",
+  retrieval = "worker"
 )
 
 # Run the R scripts in the R/ folder with your custom functions:
@@ -111,13 +117,13 @@ rasters <- tar_plan(
 slopes <- tar_plan(
   tar_map(
     #for each data product
-    values = list(product = syms(c(
-      "chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb"
-    )),
-    name = c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
+    values = list(
+      product = syms(c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")),
+      name = c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
     ),
     #calculate slopes
     #only some of these need high memory nodes, but not sure how to specify that when written in tar_map()
+    #TODO these are failing immediately on HPC with error from `nanonext::dial()`
     tar_terra_rast(
       slope, 
       calc_slopes(product),
