@@ -35,9 +35,29 @@ controller_light <- crew.cluster::crew_controller_slurm(
   )
 )
 
+# controller_heavy <- crew.cluster::crew_controller_slurm(
+#   name = "hpc_heavy",
+#   workers = 2,
+#   seconds_idle = 300, # time until workers are shut down after idle
+#   garbage_collection = TRUE, # run garbage collection between tasks
+#   launch_max = 5L, # number of unproductive launched workers until error
+#   slurm_partition = "standard",
+#   slurm_time_minutes = 1200, #wall time for each worker
+#   slurm_log_output = "logs/crew_log_%A.out",
+#   slurm_log_error = "logs/crew_log_%A.err",
+#   slurm_memory_gigabytes_per_cpu = 32,
+#   slurm_cpus_per_task = 2, # total 64gb RAM
+#   script_lines = c(
+#     "#SBATCH --account davidjpmoore",
+#     "#SBATCH --constraint=hi_mem", #use high-memory nodes
+#     "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
+#     #add additional lines to the SLURM job script as necessary here
+#   )
+# )
+
 controller_heavy <- crew.cluster::crew_controller_slurm(
   name = "hpc_heavy",
-  workers = 2,
+  workers = 3,
   seconds_idle = 300, # time until workers are shut down after idle
   garbage_collection = TRUE, # run garbage collection between tasks
   launch_max = 5L, # number of unproductive launched workers until error
@@ -45,11 +65,10 @@ controller_heavy <- crew.cluster::crew_controller_slurm(
   slurm_time_minutes = 1200, #wall time for each worker
   slurm_log_output = "logs/crew_log_%A.out",
   slurm_log_error = "logs/crew_log_%A.err",
-  slurm_memory_gigabytes_per_cpu = 32,
-  slurm_cpus_per_task = 2, # total 64gb RAM
+  slurm_memory_gigabytes_per_cpu = 5,
+  slurm_cpus_per_task = 6, # total 30gb RAM
   script_lines = c(
     "#SBATCH --account davidjpmoore",
-    "#SBATCH --constraint=hi_mem", #use high-memory nodes
     "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
     #add additional lines to the SLURM job script as necessary here
   )
