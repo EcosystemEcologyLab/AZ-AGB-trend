@@ -743,15 +743,15 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "geotargets",
       "RemoteUsername": "njtierney",
-      "RemotePkgRef": "njtierney/geotargets@51ca40bdcfa906b709d3a31ac1aa48253451025c",
-      "RemoteRef": "51ca40bdcfa906b709d3a31ac1aa48253451025c",
-      "RemoteSha": "51ca40bdcfa906b709d3a31ac1aa48253451025c",
+      "RemotePkgRef": "njtierney/geotargets",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "4af63c596bade6f3c5e52d39b415ad4d6ede8791",
       "Requirements": [
         "cli",
         "rlang",
         "targets"
       ],
-      "Hash": "d827d6fc52d1dde593f71a52c4511eea"
+      "Hash": "4356d5194d01445f44465f70c412c013"
     },
     "getip": {
       "Package": "getip",
