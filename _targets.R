@@ -66,7 +66,7 @@ controller_heavy <- crew.cluster::crew_controller_slurm(
   slurm_log_output = "logs/crew_log_%A.out",
   slurm_log_error = "logs/crew_log_%A.err",
   slurm_memory_gigabytes_per_cpu = 5,
-  slurm_cpus_per_task = 6, # total 30gb RAM
+  slurm_cpus_per_task = 8, # total 40gb RAM
   script_lines = c(
     "#SBATCH --account davidjpmoore",
     "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
@@ -144,7 +144,7 @@ slopes <- tar_plan(
       name = c("xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
     ),
     #calculate slopes
-    #Only some of these need high memory nodes!  Use `name` variable to determine which use "hpc_heavy"!
+    #Only some of these need high memory nodes, but will have to make them into separate targets
     tar_terra_rast(
       slope, 
       calc_slopes(product),
