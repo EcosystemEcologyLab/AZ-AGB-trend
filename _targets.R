@@ -149,11 +149,7 @@ slopes <- tar_plan(
       slope, 
       calc_slopes(product),
       resources = tar_resources(
-        crew = tar_resources_crew(controller = dplyr::case_when(
-          hpc & name %in% c("esa_agb", "ltgnn_agb", "chopping_agb") ~ "hpc_heavy",
-          hpc ~ "hpc_light",
-          !hpc ~ "local"
-        ))
+        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
       )
     ),
     # Then plot the slopes and export a .png
