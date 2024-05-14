@@ -137,17 +137,23 @@ slopes <- tar_plan(
   tar_map(
     #for each data product
     values = list(
-      product = syms(c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")),
-      name = c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
+      # product = syms(c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")),
+      # name = c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
+      #don't do chopping for now to see if others work
+      product = syms(c("xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")),
+      name = c("xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
     ),
     #calculate slopes
-    #only some of these need high memory nodes, but not sure how to specify that when written in tar_map()
-    #TODO these are failing immediately on HPC with error from `nanonext::dial()`
+    #Only some of these need high memory nodes!  Use `name` variable to determine which use "hpc_heavy"!
     tar_terra_rast(
       slope, 
       calc_slopes(product),
       resources = tar_resources(
-        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+        crew = tar_resources_crew(controller = dplyr::case_when(
+          hpc & name %in% c("esa_agb", "ltgnn_agb", "chopping_agb") ~ "hpc_heavy",
+          hpc ~ "hpc_light",
+          !hpc ~ "local"
+        ))
       )
     ),
     # Then plot the slopes and export a .png
