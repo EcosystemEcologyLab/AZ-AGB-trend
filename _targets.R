@@ -165,24 +165,36 @@ slopes_big <- tar_plan(
     tar_files(
       tiles,
       make_tiles(product),
+      resources = tar_resources(
+        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      )
     ),
     tar_terra_rast(
       slope_tiles,
       calc_slopes(terra::rast(tiles)),
       pattern = map(tiles),
-      iteration = "list"
+      iteration = "list",
+      resources = tar_resources(
+        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      )
     ),
     # merge tiles together
     tar_terra_rast(
       slope,
-      slope_tiles |> sprc() |> merge()
+      slope_tiles |> sprc() |> merge(),
+      resources = tar_resources(
+        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      )
     ),
     # Then plot the slopes and export a .png
     tar_target(
       slope_plot,
       plot_slopes(slope, region = az),
       #packages only needed for plotting step:
-      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext")
+      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext"),
+      resources = tar_resources(
+        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      )
     )
   )
 )
