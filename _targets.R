@@ -66,7 +66,7 @@ controller_heavy <- crew.cluster::crew_controller_slurm(
   slurm_log_output = "logs/crew_log_%A.out",
   slurm_log_error = "logs/crew_log_%A.err",
   slurm_memory_gigabytes_per_cpu = 5,
-  slurm_cpus_per_task = 8, # total 40gb RAM
+  slurm_cpus_per_task = 10, # total 50gb RAM
   script_lines = c(
     "#SBATCH --account davidjpmoore",
     "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
