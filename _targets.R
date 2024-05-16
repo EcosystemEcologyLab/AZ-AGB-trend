@@ -133,29 +133,54 @@ rasters <- tar_plan(
   )
 )
 
-slopes <- tar_plan(
+slopes_small <- tar_plan(
   tar_map(
     #for each data product
     values = list(
-      # product = syms(c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")),
-      # name = c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
-      #don't do chopping for now to see if others work
-      product = syms(c("xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")),
-      name = c("xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
+      product = syms(c("xu_agb", "liu_agb"))
     ),
     #calculate slopes
     #Only some of these need high memory nodes, but will have to make them into separate targets
     tar_terra_rast(
       slope, 
-      calc_slopes(product),
-      resources = tar_resources(
-        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
-      )
+      calc_slopes(product)
     ),
     # Then plot the slopes and export a .png
     tar_target(
       slope_plot,
-      plot_slopes(slope, target_name = name, region = az),
+      plot_slopes(slope, region = az),
+      #packages only needed for plotting step:
+      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext")
+    )
+  )
+)
+
+#for high resolution data products, need to break into tiles to do computations in parallel to not run out of memory
+slopes_big <- tar_plan(
+  tar_map(
+    #for each data product
+    values = list(
+      product = syms(c("esa_agb", "chopping_agb", "ltgnn_agb"))
+    ),
+    tar_files(
+      tiles,
+      make_tiles(product),
+    ),
+    tar_terra_rast(
+      slope_tiles,
+      calc_slopes(terra::rast(tiles)),
+      pattern = map(tiles),
+      iteration = "list"
+    ),
+    # merge tiles together
+    tar_terra_rast(
+      slope,
+      slope_tiles |> sprc() |> merge()
+    ),
+    # Then plot the slopes and export a .png
+    tar_target(
+      slope_plot,
+      plot_slopes(slope, region = az),
       #packages only needed for plotting step:
       packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext")
     )
@@ -163,4 +188,4 @@ slopes <- tar_plan(
 )
 
 
-list(files, rasters, slopes)
+list(files, rasters, slopes_small, slopes_big)
