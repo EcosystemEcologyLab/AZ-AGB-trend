@@ -35,6 +35,7 @@ controller_light <- crew.cluster::crew_controller_slurm(
   )
 )
 
+
 # controller_heavy <- crew.cluster::crew_controller_slurm(
 #   name = "hpc_heavy",
 #   workers = 2,
@@ -46,7 +47,7 @@ controller_light <- crew.cluster::crew_controller_slurm(
 #   slurm_log_output = "logs/crew_log_%A.out",
 #   slurm_log_error = "logs/crew_log_%A.err",
 #   slurm_memory_gigabytes_per_cpu = 32,
-#   slurm_cpus_per_task = 2, # total 64gb RAM
+#   slurm_cpus_per_task = 3, # total 96gb RAM
 #   script_lines = c(
 #     "#SBATCH --account davidjpmoore",
 #     "#SBATCH --constraint=hi_mem", #use high-memory nodes
@@ -114,9 +115,15 @@ files <- tar_plan(
 )
 
 rasters <- tar_plan(
-  tar_terra_rast(chopping_agb, read_clean_chopping(chopping_file, az)),
   tar_terra_rast(xu_agb, read_clean_xu(xu_file, az)),
   tar_terra_rast(liu_agb, read_clean_liu(liu_file, az)),
+  tar_terra_rast(
+    chopping_agb,
+    read_clean_chopping(chopping_file, az),
+    resources = tar_resources(
+      crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+    )
+  ),
   tar_terra_rast(
     esa_agb, 
     read_clean_esa(esa_files, az),
