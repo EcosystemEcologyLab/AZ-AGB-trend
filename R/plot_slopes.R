@@ -12,9 +12,6 @@
 #'
 #' @param slope_rast a SpatRaster created by `calc_slopes()`
 #' @param region SpatVector of arizona
-#' @param target_name optional, the name of the dataset (e.g. slope_liu_agb).
-#'   If not provided, this will be taken from varnames(slope_rast) which
-#'   sometimes has this info.
 #' @param save this plot as a file?
 #' @param ext file extension for saved figure
 #' @param outdir path to save file out to
@@ -27,10 +24,9 @@
 #' plot_slopes(tar_read(slope_liu_agb), limits = c(-1, 1), width = 5, height = 5)
 #' 
 plot_slopes <- function(slope_rast, region, target_name = NULL, save = TRUE, ext = "png", outdir = "output/figs", limits = NULL, ...) {
-  if (is.null(target_name)) {
-    #varnames are lost in current version of geotargets, so this is necessary
-    target_name <- varnames(slope_rast)
-  }
+  
+  #varnames are lost in current version of geotargets, so pull from target name instead
+  target_name <- as.character(rlang::ensym(slope_rast))
   title <- dplyr::case_when(
     stringr::str_detect(target_name, "liu") ~ "Liu et al.",
     stringr::str_detect(target_name, "xu") ~ "Xu et al.",

@@ -35,6 +35,7 @@ controller_light <- crew.cluster::crew_controller_slurm(
   )
 )
 
+
 # controller_heavy <- crew.cluster::crew_controller_slurm(
 #   name = "hpc_heavy",
 #   workers = 2,
@@ -46,7 +47,7 @@ controller_light <- crew.cluster::crew_controller_slurm(
 #   slurm_log_output = "logs/crew_log_%A.out",
 #   slurm_log_error = "logs/crew_log_%A.err",
 #   slurm_memory_gigabytes_per_cpu = 32,
-#   slurm_cpus_per_task = 2, # total 64gb RAM
+#   slurm_cpus_per_task = 3, # total 96gb RAM
 #   script_lines = c(
 #     "#SBATCH --account davidjpmoore",
 #     "#SBATCH --constraint=hi_mem", #use high-memory nodes
@@ -66,7 +67,7 @@ controller_heavy <- crew.cluster::crew_controller_slurm(
   slurm_log_output = "logs/crew_log_%A.out",
   slurm_log_error = "logs/crew_log_%A.err",
   slurm_memory_gigabytes_per_cpu = 5,
-  slurm_cpus_per_task = 8, # total 40gb RAM
+  slurm_cpus_per_task = 10, # total 50gb RAM
   script_lines = c(
     "#SBATCH --account davidjpmoore",
     "module load gdal/3.8.5 R/4.3 eigen/3.4.0 netcdf/4.7.1"
@@ -75,7 +76,7 @@ controller_heavy <- crew.cluster::crew_controller_slurm(
 )
 
 controller_local <- 
-  crew::crew_controller_local(name = "local", workers = 2, seconds_idle = 60)
+  crew::crew_controller_local(name = "local", workers = 4, seconds_idle = 60)
 
 # Set target options:
 tar_option_set(
@@ -114,9 +115,15 @@ files <- tar_plan(
 )
 
 rasters <- tar_plan(
-  tar_terra_rast(chopping_agb, read_clean_chopping(chopping_file, az)),
   tar_terra_rast(xu_agb, read_clean_xu(xu_file, az)),
   tar_terra_rast(liu_agb, read_clean_liu(liu_file, az)),
+  tar_terra_rast(
+    chopping_agb,
+    read_clean_chopping(chopping_file, az),
+    resources = tar_resources(
+      crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+    )
+  ),
   tar_terra_rast(
     esa_agb, 
     read_clean_esa(esa_files, az),
@@ -133,21 +140,55 @@ rasters <- tar_plan(
   )
 )
 
-slopes <- tar_plan(
+slopes_small <- tar_plan(
   tar_map(
     #for each data product
     values = list(
-      # product = syms(c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")),
-      # name = c("chopping_agb", "xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
-      #don't do chopping for now to see if others work
-      product = syms(c("xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")),
-      name = c("xu_agb", "liu_agb", "esa_agb", "ltgnn_agb")
+      product = syms(c("xu_agb", "liu_agb"))
     ),
     #calculate slopes
     #Only some of these need high memory nodes, but will have to make them into separate targets
     tar_terra_rast(
       slope, 
-      calc_slopes(product),
+      calc_slopes(product)
+    ),
+    # Then plot the slopes and export a .png
+    tar_target(
+      slope_plot,
+      plot_slopes(slope, region = az),
+      #packages only needed for plotting step:
+      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext")
+    )
+  )
+)
+
+#for high resolution data products, need to break into tiles to do computations in parallel to not run out of memory
+slopes_big <- tar_plan(
+  tar_map(
+    #for each data product
+    values = list(
+      product = syms(c("esa_agb", "chopping_agb", "ltgnn_agb"))
+    ),
+    tar_files(
+      tiles,
+      make_tiles(product),
+      resources = tar_resources(
+        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      )
+    ),
+    tar_terra_rast(
+      slope_tiles,
+      calc_slopes(terra::rast(tiles)),
+      pattern = map(tiles),
+      iteration = "list",
+      resources = tar_resources(
+        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      )
+    ),
+    # merge tiles together
+    tar_terra_rast(
+      slope,
+      slope_tiles |> sprc() |> merge(),
       resources = tar_resources(
         crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
       )
@@ -155,12 +196,15 @@ slopes <- tar_plan(
     # Then plot the slopes and export a .png
     tar_target(
       slope_plot,
-      plot_slopes(slope, target_name = name, region = az),
+      plot_slopes(slope, region = az),
       #packages only needed for plotting step:
-      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext")
+      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext"),
+      resources = tar_resources(
+        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
+      )
     )
   )
 )
 
 
-list(files, rasters, slopes)
+list(files, rasters, slopes_small, slopes_big)
