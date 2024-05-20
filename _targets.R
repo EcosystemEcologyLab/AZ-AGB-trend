@@ -206,5 +206,17 @@ slopes_big <- tar_plan(
   )
 )
 
+#collect data and visualize
+#TODO move plots here?
+data <- tar_plan(
+  tar_target(
+    slope_data,
+    collect_data(
+      slope_liu_agb, slope_xu_agb,
+      slope_esa_agb, slope_chopping_agb, slope_ltgnn_agb
+    ),
+    packages = c("purrr", "dplyr", "stringr", "rlang", "tidyterra")
+  )
+)
 
-list(files, rasters, slopes_small, slopes_big)
+list(files, rasters, slopes_small, slopes_big, data)
