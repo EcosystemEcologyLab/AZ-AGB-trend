@@ -219,6 +219,11 @@ data <- tar_plan(
       slope_esa_agb, slope_chopping_agb, slope_ltgnn_agb
     ),
     packages = c("purrr", "dplyr", "stringr", "rlang", "tidyterra")
+  ),
+  tar_target(
+    slope_plot,
+    plot_slope_slabinterval(slope_data),
+    packages = c("dplyr", "ggdist", "colorspace", "ggplot2", "ggtext")
   )
 )
 
