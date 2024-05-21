@@ -169,17 +169,20 @@ slopes_big <- tar_plan(
     values = list(
       product = syms(c("esa_agb", "chopping_agb", "ltgnn_agb"))
     ),
-    tar_files(
+    tar_target(
       tiles,
       make_tiles(product),
-      resources = tar_resources(
-        crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
-      )
+    ),
+    tar_target(
+      tiles_files,
+      tiles,
+      pattern = map(tiles),
+      format = "file"
     ),
     tar_terra_rast(
       slope_tiles,
-      calc_slopes(terra::rast(tiles)),
-      pattern = map(tiles),
+      calc_slopes(terra::rast(tiles_files)),
+      pattern = map(tiles_files),
       iteration = "list",
       resources = tar_resources(
         crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
