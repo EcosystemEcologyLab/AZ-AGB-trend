@@ -76,7 +76,12 @@ controller_heavy <- crew.cluster::crew_controller_slurm(
 )
 
 controller_local <- 
-  crew::crew_controller_local(name = "local", workers = 4, seconds_idle = 60)
+  crew::crew_controller_local(
+    name = "local", 
+    workers = 4, 
+    seconds_idle = 60,
+    local_log_directory = "logs"
+  )
 
 # Set target options:
 tar_option_set(
