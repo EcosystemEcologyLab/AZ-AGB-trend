@@ -14,34 +14,30 @@ editor: visual
 
 library(targets)
 library(here)
+library(terra)
 library(tidyterra)
-library(ggplot2)
 library(purrr)
+library(dplyr)
+library(ggplot2)
 library(ragg)
-library(ggridges)
-library(ggdist)
+library(ggtext)
 
-tar_load(starts_with("slope"), store = here("_targets"))
-
-```
-
-```{r}
-#| label: wrangle
+tar_load(c(slope_liu_agb, slope_chopping_agb, slope_xu_agb), store = here("_targets"))
 
 df <- 
-  list(`Xu et al.` = slope_xu_agb_xu_agb,
-       `Liu et al.` = slope_liu_agb_liu_agb, 
-       `chopping` = slope_chopping_agb_chopping_agb) |> 
-  purrr::map(\(x) {
-    x[["slope"]] |> as_tibble(na.rm = TRUE)
-  }) |> 
+  map(c("Liu et al." = slope_liu_agb,
+        "Chopping et al." = slope_chopping_agb,
+        "Xu et al." = slope_xu_agb), 
+      \(x) as_tibble(x, na.rm = TRUE) |> select(-p.value)) |> 
   list_rbind(names_to = "product")
+df
 
+theme_set(theme_minimal(base_family = "sans"))
 ```
 
 Visualizing the distribution of values among these datasets is tricky for two reasons:
 
-1.  Their resolution and therefore sample size varies by several orders of magnitude.
+1.  Their resolution and therefore sample size varies by several orders of magnitude. E.g. the LT-GNN dataset (not shown) has tens of millions of values and the Liu et al. dataset has 492.
 2.  In some products, the most common slope *by far* is 0.
 
 ```{r}
@@ -68,14 +64,13 @@ p <- ggplot(df, aes(x = slope, y = product)) + labs(x = "∆Mg/Ha/yr")
 p + geom_boxplot()
 ```
 
-You can remove "outliers", but I'm not sure that's the best idea.
-Chopping et al. has so many points, that it looks like all non-zero points are "outliers".
+You can remove "outliers", but I'm not sure that's the best idea. Chopping et al. has so many points, that it looks like all non-zero points are "outliers".
 
 ```{r}
 p + geom_boxplot(outliers = FALSE)
 ```
 
-## Violin plots / Density plots
+## Violin plots
 
 These don't look great because even if you were to add lines for median and IQR, you wouldn't be able to see them.
 
@@ -83,16 +78,10 @@ These don't look great because even if you were to add lines for median and IQR,
 p + geom_violin()
 ```
 
-```{r}
-p + geom_density_ridges()
-```
-
 ## Point interval
 
-A point interval plot from `ggdist` shows the median (point) and different intervals.
-Here I'm showing the range of the 80th percentile (fattest line), and 95th percentile of data (thinnest line).
-These quantiles are arbitrary and can be changed (both what quantiles and how many).
+This is what I settled on for now. The points show the median data value, the thick lines show the IQR (25th and 75th percentiles) and the thin lines show the middle 80% of data (10th and 90th percentiles). The vertical dashed line just shows where 0 is.
 
 ```{r}
-p + stat_pointinterval(.width = c(.8, .95))
+tar_read(summary_plot, store = here("_targets"))
 ```
