@@ -76,11 +76,15 @@ controller_heavy <- crew.cluster::crew_controller_slurm(
 )
 
 controller_local <- 
-  crew::crew_controller_local(name = "local", workers = 4, seconds_idle = 60)
+  crew::crew_controller_local(
+    name = "local",
+    workers = 4, 
+    seconds_idle = 60, 
+  )
 
 # Set target options:
 tar_option_set(
-  packages = c("ncdf4", "terra", "fs", "purrr", "ncdf4", "car"), # Packages that your targets need for their tasks.
+  packages = c("ncdf4", "terra", "fs", "purrr", "ncdf4", "car", "dplyr"), # Packages that your targets need for their tasks.
   controller = crew_controller_group(controller_local, controller_heavy, controller_light),
   #if on HPC use "hpc_light" controller by default, otherwise use "local"
   resources = tar_resources(
@@ -157,7 +161,7 @@ slopes_small <- tar_plan(
       slope_plot,
       plot_slopes(slope, region = az),
       #packages only needed for plotting step:
-      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext")
+      packages = c("ggplot2", "tidyterra", "colorspace", "stringr", "ggtext")
     )
   )
 )
@@ -201,7 +205,7 @@ slopes_big <- tar_plan(
       slope_plot,
       plot_slopes(slope, region = az),
       #packages only needed for plotting step:
-      packages = c("ggplot2", "tidyterra", "colorspace", "dplyr", "stringr", "ggtext"),
+      packages = c("ggplot2", "tidyterra", "colorspace", "stringr", "ggtext"),
       resources = tar_resources(
         crew = tar_resources_crew(controller = ifelse(hpc, "hpc_heavy", "local"))
       )
@@ -209,22 +213,40 @@ slopes_big <- tar_plan(
   )
 )
 
-#collect data and visualize
-#TODO move plots here?
+#collect summary statistics
 data <- tar_plan(
-  tar_target(
-    slope_data,
-    collect_data(
-      slope_liu_agb, slope_xu_agb,
-      slope_esa_agb, slope_chopping_agb, slope_ltgnn_agb
+  tar_map(
+    values = list(
+      rasters = syms(c(
+        "slope_liu_agb", "slope_xu_agb",
+        "slope_esa_agb", "slope_chopping_agb", "slope_ltgnn_agb"
+      ))
     ),
-    packages = c("purrr", "dplyr", "stringr", "rlang", "tidyterra")
+    tar_target(
+      summary,
+      summarize_slopes(rasters)
+    )
+  )
+)
+stats <- tar_combine(
+  summary_stats,
+  data,
+  command = dplyr::bind_rows(!!!.x, .id = "product")
+)
+
+# plot summary statistics
+plot <- tar_plan(
+  tar_target(
+    summary_plot,
+    plot_summary_stats(summary_stats),
+    packages = c("ggplot2", "ggtext")
   ),
   tar_target(
-    slope_plot,
-    plot_slope_slabinterval(slope_data),
-    packages = c("dplyr", "ggdist", "colorspace", "ggplot2", "ggtext")
+    summary_plot_png,
+    ggsave("output/figs/summary_plot.png", summary_plot)
   )
 )
 
-list(files, rasters, slopes_small, slopes_big, data)
+list(files, rasters, slopes_small,
+     slopes_big,
+     data, stats, plot)
