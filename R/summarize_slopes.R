@@ -7,8 +7,10 @@ summarize_slopes <- function(raster) {
       max = max(slope),
       median = median(slope),
       q.025 = quantile(slope, 0.025),
+      q.1 = quantile(slope, 0.1),
       q.25 = quantile(slope, 0.25),
       q.75 = quantile(slope, 0.74),
+      q.9 = quantile(slope, 0.9),
       q.975 = quantile(slope, 0.975),
     ) 
 }

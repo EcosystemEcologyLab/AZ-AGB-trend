@@ -10,8 +10,13 @@ plot_summary_stats <- function(data) {
       .default = product
     )) |> 
     ggplot(aes(x = product)) +
+    #Median and inter-quartile range (IQR)
     geom_pointrange(aes(y = median, ymin = q.25, ymax = q.75), linewidth = 2, fatten = 5) +
-    geom_linerange(aes(ymin = q.025, ymax = q.975), linewidth = 1) +
+    #95% of data
+    # geom_linerange(aes(ymin = q.025, ymax = q.975), linewidth = 1) +
+    #80% of data
+    geom_linerange(aes(ymin = q.1, ymax = q.9), linewidth = 1) +
+    #Dotted line at zero
     geom_hline(yintercept = 0, linetype = 2, color = "grey20") +
     ## add a point for mean?
     # geom_point(aes(y = mean), shape = "cross", color = "blue", size = 4) +
