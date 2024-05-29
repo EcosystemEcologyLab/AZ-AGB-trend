@@ -79,23 +79,26 @@ slopes_small <- tar_plan(
   )
 )
 
-#for high resolution data products, need to break into tiles to do computations in parallel to not run out of memory
+#for high resolution data products, need to break into tiles to do computations by tile to not run out of memory
 slopes_big <- tar_plan(
   tar_map(
-    #for each data product
+    # for each data product
     values = list(
       product = syms(c("esa_agb", "chopping_agb", "ltgnn_agb"))
     ),
+    # split into tiles on disk
     tar_target(
       tiles,
       make_tiles(product),
     ),
+    # track the resulting files
     tar_target(
       tiles_files,
       tiles,
       pattern = map(tiles),
       format = "file"
     ),
+    # iterate over files to read them in in calculate slopes
     tar_terra_rast(
       slope_tiles,
       calc_slopes(terra::rast(tiles_files)),
@@ -117,7 +120,7 @@ slopes_big <- tar_plan(
   )
 )
 
-#collect summary statistics
+# collect summary statistics
 data <- tar_plan(
   tar_map(
     values = list(
@@ -150,6 +153,10 @@ plot <- tar_plan(
     ggsave("output/figs/summary_plot.png", summary_plot)
   )
 )
+
+# render <- tar_plan(
+#   tar_quarto(readme, "README.Qmd")
+# )
 
 list(files, rasters, slopes_small,
      slopes_big,
