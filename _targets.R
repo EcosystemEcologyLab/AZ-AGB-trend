@@ -7,8 +7,9 @@
 library(targets)
 library(tarchetypes)
 library(geotargets)
-library(rlang)
+library(rlang) #hmm, not sure I need this anymore
 library(crew)
+library(quarto) #only required for rendering reports
 
 
 controller_local <- 
@@ -154,10 +155,11 @@ plot <- tar_plan(
   )
 )
 
-# render <- tar_plan(
-#   tar_quarto(readme, "README.Qmd")
-# )
+render <- tar_plan(
+  tar_quarto(readme, "README.Qmd"),
+  tar_quarto(report, "docs/index.qmd")
+)
 
 list(files, rasters, slopes_small,
      slopes_big,
-     data, stats, plot)
+     data, stats, plot, render)
