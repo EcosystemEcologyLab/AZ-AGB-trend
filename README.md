@@ -111,6 +111,13 @@ Two packages that extend `targets` are used as well: `tarchetypes` and
 under development by Eric Scott and Nick Tierney and allows `targets` to
 work with `SpatRaster` objects created by `terra::rast()`.
 
+Some of the steps require quite a lot of RAM, in particular those
+involving the LT-GNN dataset. I’ve gotten this workflow to run on a
+Jetstream2/Exosphere instance with 60GB of RAM, but I’m not exactly sure
+what the requirements are. If you’d like to run this locally, I’d
+recommend modifying `_targets.R` to remove steps involving the higher
+resolution data products like LT-GNN.
+
 ## Files
 
 Files related to `renv`:
