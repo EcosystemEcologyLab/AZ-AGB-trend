@@ -156,7 +156,7 @@ plot <- tar_plan(
 )
 
 render <- tar_plan(
-  tar_quarto(readme, "README.Qmd"),
+  tar_quarto(readme, "README.qmd"),
   tar_quarto(report, "docs/index.qmd")
 )
 
