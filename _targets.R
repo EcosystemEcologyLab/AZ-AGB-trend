@@ -7,16 +7,16 @@
 library(targets)
 library(tarchetypes)
 library(geotargets)
-library(rlang) #hmm, not sure I need this anymore
+library(rlang) #for syms()
 library(crew)
 library(quarto) #only required for rendering reports
 
-
+# Set up a "controller" for parallelization of tasks.  Here I'm using a max of 4 concurrent workers.
 controller_local <- 
   crew::crew_controller_local(
     name = "local", 
-    workers = 4, 
-    seconds_idle = 60,
+    workers = 4, # max of four workers
+    seconds_idle = 60, # how long a worker can be doing nothing before it is shut down
     local_log_directory = "logs"
   )
 
@@ -52,6 +52,7 @@ files <- tar_plan(
   tar_terra_vect(az, get_az(), deployment = "main")
 )
 
+# Read in rasters and do some minimal data cleaning
 rasters <- tar_plan(
   tar_terra_rast(xu_agb, read_clean_xu(xu_file, az)),
   tar_terra_rast(liu_agb, read_clean_liu(liu_file, az)),
@@ -60,6 +61,7 @@ rasters <- tar_plan(
   tar_terra_rast(ltgnn_agb, read_clean_ltgnn(ltgnn_files, az))
 )
 
+# Calculate trends in AGB
 slopes_small <- tar_plan(
   tar_map(#for each data product
     values = list(
@@ -80,10 +82,10 @@ slopes_small <- tar_plan(
   )
 )
 
-#for high resolution data products, need to break into tiles to do computations by tile to not run out of memory
+# for high resolution data products, need to break into tiles and do
+# computations by tile to not run out of memory
 slopes_big <- tar_plan(
-  tar_map(
-    # for each data product
+  tar_map(# for each data product
     values = list(
       product = syms(c("esa_agb", "chopping_agb", "ltgnn_agb"))
     ),
@@ -99,7 +101,7 @@ slopes_big <- tar_plan(
       pattern = map(tiles),
       format = "file"
     ),
-    # iterate over files to read them in in calculate slopes
+    # iterate over files to read them in and calculate slopes
     tar_terra_rast(
       slope_tiles,
       calc_slopes(terra::rast(tiles_files)),
@@ -121,21 +123,24 @@ slopes_big <- tar_plan(
   )
 )
 
-# collect summary statistics
+# Calculate summary stats for each slope raster
 data <- tar_plan(
-  tar_map(
+  tar_map(#for each raster
     values = list(
       rasters = syms(c(
         "slope_liu_agb", "slope_xu_agb",
         "slope_esa_agb", "slope_chopping_agb", "slope_ltgnn_agb"
       ))
     ),
+    #get summary stats
     tar_target(
       summary,
       summarize_slopes(rasters)
     )
   )
 )
+
+# Combine all the summary stats into one dataframe
 stats <- tar_combine(
   summary_stats,
   data,
@@ -151,15 +156,18 @@ plot <- tar_plan(
   ),
   tar_target(
     summary_plot_png,
-    ggsave("output/figs/summary_plot.png", summary_plot)
+    ggsave("output/figs/summary_plot.png", summary_plot, bg = "white"),
+    format = "file"
   )
 )
 
+# Render .Qmd documents
 render <- tar_plan(
   tar_quarto(readme, "README.qmd"),
   tar_quarto(report, "docs/index.qmd")
 )
 
+#_targets.R must end with a list of targets.  They can be arbitrarily nested
 list(files, rasters, slopes_small,
      slopes_big,
      data, stats, plot, render)
