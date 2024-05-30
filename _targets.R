@@ -10,6 +10,7 @@ library(geotargets)
 library(rlang) #for syms()
 library(crew)
 library(quarto) #only required for rendering reports
+library(paws.storage) #for storing targets in an S3 bucket
 
 # Set up a "controller" for parallelization of tasks.  Here I'm using a max of 4 concurrent workers.
 controller_local <- 
@@ -27,11 +28,21 @@ tar_option_set(
   # improve memory performance
   memory = "transient", 
   garbage_collection = TRUE,
-  # allow workers to access _targets/ store directly
-  storage = "worker",
-  retrieval = "worker"
+  ## allow workers to access _targets/ store directly
+  # storage = "worker",
+  # retrieval = "worker",
+  # repository = "local",
+  repository = "aws", #comment out or change to "local" to store targets locally on disk
+  resources = tar_resources(
+    aws = tar_resources_aws(
+      bucket = "moore", 
+      prefix = "agb_slope",
+      endpoint = "https://js2.jetstream-cloud.org:8001",
+      max_tries = 10
+    )
+  )
 )
-
+geotargets_option_set(gdal_raster_driver = "COG")
 # Run the R scripts in the R/ folder with your custom functions:
 tar_source()
 # tar_source("other_functions.R") # Source other scripts as needed.
@@ -44,11 +55,11 @@ root <- "data"
 
 # Track files
 files <- tar_plan(
-  tar_file(esa_files, dir_ls(path(root, "ESA_CCI/"), glob = "*.tif*"), deployment = "main"),
-  tar_file(chopping_file, path(root, "Chopping/MISR_agb_estimates_20002021.tif"), deployment = "main"),
-  tar_file(liu_file, path(root, "Liu/Aboveground_Carbon_1993_2012.nc"), deployment = "main"),
-  tar_file(xu_file, path(root, "Xu/test10a_cd_ab_pred_corr_2000_2019_v2.tif"), deployment = "main"),
-  tar_file(ltgnn_files, fs::dir_ls(path(root, "LT_GNN"), glob = "*.zip"), deployment = "main"),
+  tar_file(esa_files, dir_ls(path(root, "ESA_CCI/"), glob = "*.tif*"), deployment = "main", repository = "local"),
+  tar_file(chopping_file, path(root, "Chopping/MISR_agb_estimates_20002021.tif"), deployment = "main", repository = "local"),
+  tar_file(liu_file, path(root, "Liu/Aboveground_Carbon_1993_2012.nc"), deployment = "main", repository = "local"),
+  tar_file(xu_file, path(root, "Xu/test10a_cd_ab_pred_corr_2000_2019_v2.tif"), deployment = "main", repository = "local"),
+  tar_file(ltgnn_files, fs::dir_ls(path(root, "LT_GNN"), glob = "*.zip"), deployment = "main", repository = "local"),
   tar_terra_vect(az, get_az(), deployment = "main")
 )
 
