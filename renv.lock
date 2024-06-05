@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.3.2",
+    "Version": "4.3.3",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -688,17 +688,6 @@
         "methods"
       ],
       "Hash": "15e9634c0fcd294799e9b2e929ed1b86"
-    },
-    "geodata": {
-      "Package": "geodata",
-      "Version": "0.5-9",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "terra"
-      ],
-      "Hash": "5937c0840e80ae8a7506f1d12e454e5a"
     },
     "geotargets": {
       "Package": "geotargets",
