@@ -150,7 +150,7 @@ stats <- tar_plan(
   ),
   tar_file(
     summary_stats_csv,
-    readr::write_csv(summary_stats, "output/slope_summary.csv"),
+    write_summary(summary_stats),
     packages = c("readr")
   )
 )
