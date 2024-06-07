@@ -43,77 +43,83 @@ package](https://docs.ropensci.org/targets/) for workflow management.
 Run `targets::tar_make()` from the console to run the workflow and
 reproduce all results. The graph below shows the workflow:
 
+- The project is out-of-sync – use `renv::status()` for details.
+
 ``` mermaid
 graph LR
   style Legend fill:#FFFFFF00,stroke:#000000;
   style Graph fill:#FFFFFF00,stroke:#000000;
   subgraph Legend
     direction LR
-    xf1522833a4d242c5([""Up to date""]):::uptodate --- x2db1ec7a48f65a9b([""Outdated""]):::outdated
-    x2db1ec7a48f65a9b([""Outdated""]):::outdated --- xd03d7c7dd2ddda2b([""Stem""]):::none
+    x2db1ec7a48f65a9b([""Outdated""]):::outdated --- xf1522833a4d242c5([""Up to date""]):::uptodate
+    xf1522833a4d242c5([""Up to date""]):::uptodate --- xb6630624a7b3aa0f([""Dispatched""]):::dispatched
+    xb6630624a7b3aa0f([""Dispatched""]):::dispatched --- xd03d7c7dd2ddda2b([""Stem""]):::none
     xd03d7c7dd2ddda2b([""Stem""]):::none --- x6f7e04ea3427f824[""Pattern""]:::none
   end
   subgraph Graph
     direction LR
-    xf99622c5fc8ef45a(["ltgnn_agb"]):::uptodate --> x7e3ed8ef27617b0c(["tiles_ltgnn_agb<br>ltgnn_agb"]):::outdated
-    xd175b91b13bd123d(["az"]):::uptodate --> x7b18c44a5b46e7c6(["slope_plot_liu_agb<br>liu_agb"]):::uptodate
-    x19861953fb240462(["slope_liu_agb<br>liu_agb"]):::uptodate --> x7b18c44a5b46e7c6(["slope_plot_liu_agb<br>liu_agb"]):::uptodate
-    xf4e158caecdccb15(["chopping_agb"]):::uptodate --> x6768884bc669c5f9(["tiles_chopping_agb<br>chopping_agb"]):::uptodate
-    xd175b91b13bd123d(["az"]):::uptodate --> xf99622c5fc8ef45a(["ltgnn_agb"]):::uptodate
-    x00f89745e3b925a1(["ltgnn_files"]):::uptodate --> xf99622c5fc8ef45a(["ltgnn_agb"]):::uptodate
-    x19861953fb240462(["slope_liu_agb<br>liu_agb"]):::uptodate --> x934c6d5503713b06(["summary_slope_liu_agb<br>slope_liu_agb"]):::outdated
-    xb8c4f257f8f5cc00["slope_tiles_esa_agb<br>esa_agb"]:::outdated --> x2b62872927f90ba0(["slope_esa_agb<br>esa_agb"]):::outdated
-    x9035538e1c606cb6(["slope_chopping_agb<br>chopping_agb"]):::outdated --> xb72891f20a5b8df1(["report"]):::outdated
-    x19861953fb240462(["slope_liu_agb<br>liu_agb"]):::uptodate --> xb72891f20a5b8df1(["report"]):::outdated
-    x3bcb242414a73cf6(["slope_xu_agb<br>xu_agb"]):::uptodate --> xb72891f20a5b8df1(["report"]):::outdated
-    x000fd996de9c9b5d(["summary_plot"]):::outdated --> xb72891f20a5b8df1(["report"]):::outdated
-    xd175b91b13bd123d(["az"]):::uptodate --> xc1dac2c05b606c65(["slope_plot_xu_agb<br>xu_agb"]):::uptodate
-    x3bcb242414a73cf6(["slope_xu_agb<br>xu_agb"]):::uptodate --> xc1dac2c05b606c65(["slope_plot_xu_agb<br>xu_agb"]):::uptodate
-    x3bcb242414a73cf6(["slope_xu_agb<br>xu_agb"]):::uptodate --> x1c4a7d9fb56ed3d5(["summary_slope_xu_agb<br>slope_xu_agb"]):::outdated
-    xd175b91b13bd123d(["az"]):::uptodate --> x85cf752f78e30db8(["slope_plot_chopping_agb<br>chopping_agb"]):::outdated
-    x9035538e1c606cb6(["slope_chopping_agb<br>chopping_agb"]):::outdated --> x85cf752f78e30db8(["slope_plot_chopping_agb<br>chopping_agb"]):::outdated
-    xd175b91b13bd123d(["az"]):::uptodate --> xf4e158caecdccb15(["chopping_agb"]):::uptodate
-    x34fa7583752e3167(["chopping_file"]):::uptodate --> xf4e158caecdccb15(["chopping_agb"]):::uptodate
-    xd175b91b13bd123d(["az"]):::uptodate --> x7200ced56d430735(["slope_plot_ltgnn_agb<br>ltgnn_agb"]):::outdated
-    x01a6772d1976e35e(["slope_ltgnn_agb<br>ltgnn_agb"]):::outdated --> x7200ced56d430735(["slope_plot_ltgnn_agb<br>ltgnn_agb"]):::outdated
-    xd0c88814a818c03c["tiles_files_ltgnn_agb<br>ltgnn_agb"]:::outdated --> x4b1136645d9b9d11["slope_tiles_ltgnn_agb<br>ltgnn_agb"]:::outdated
-    x2b62872927f90ba0(["slope_esa_agb<br>esa_agb"]):::outdated --> xb538f1edee56fb8e(["summary_slope_esa_agb<br>slope_esa_agb"]):::outdated
-    xd175b91b13bd123d(["az"]):::uptodate --> x55cd1a25824d6c45(["xu_agb"]):::uptodate
-    x4f83a8bb6986eb55(["xu_file"]):::uptodate --> x55cd1a25824d6c45(["xu_agb"]):::uptodate
-    xf12eae5dccac7288["tiles_files_esa_agb<br>esa_agb"]:::outdated --> xb8c4f257f8f5cc00["slope_tiles_esa_agb<br>esa_agb"]:::outdated
-    x1df925585a964a4f(["summary_stats"]):::outdated --> x000fd996de9c9b5d(["summary_plot"]):::outdated
-    xfd911c6a5ce68b32(["tiles_esa_agb<br>esa_agb"]):::outdated --> xf12eae5dccac7288["tiles_files_esa_agb<br>esa_agb"]:::outdated
-    xd175b91b13bd123d(["az"]):::uptodate --> x9126df164c036a5c(["liu_agb"]):::uptodate
-    x19766d176d835c12(["liu_file"]):::uptodate --> x9126df164c036a5c(["liu_agb"]):::uptodate
-    xb5861ed11a909dd6["tiles_files_chopping_agb<br>chopping_agb"]:::uptodate --> x09b7490629889bf8["slope_tiles_chopping_agb<br>chopping_agb"]:::outdated
+    x19861953fb240462(["slope_liu_agb<br>liu_agb"]):::outdated --> x934c6d5503713b06(["summary_slope_liu_agb<br>slope_liu_agb"]):::outdated
+    x9126df164c036a5c(["liu_agb"]):::outdated --> x19861953fb240462(["slope_liu_agb<br>liu_agb"]):::outdated
     x7e3ed8ef27617b0c(["tiles_ltgnn_agb<br>ltgnn_agb"]):::outdated --> xd0c88814a818c03c["tiles_files_ltgnn_agb<br>ltgnn_agb"]:::outdated
-    xd175b91b13bd123d(["az"]):::uptodate --> x20b6251b56892c2a(["esa_agb"]):::uptodate
-    x151ce04cb638b59b(["esa_files"]):::uptodate --> x20b6251b56892c2a(["esa_agb"]):::uptodate
-    x9126df164c036a5c(["liu_agb"]):::uptodate --> x19861953fb240462(["slope_liu_agb<br>liu_agb"]):::uptodate
-    x000fd996de9c9b5d(["summary_plot"]):::outdated --> x14470e08f150281f(["summary_plot_png"]):::outdated
-    x4b1136645d9b9d11["slope_tiles_ltgnn_agb<br>ltgnn_agb"]:::outdated --> x01a6772d1976e35e(["slope_ltgnn_agb<br>ltgnn_agb"]):::outdated
-    x55cd1a25824d6c45(["xu_agb"]):::uptodate --> x3bcb242414a73cf6(["slope_xu_agb<br>xu_agb"]):::uptodate
-    x09b7490629889bf8["slope_tiles_chopping_agb<br>chopping_agb"]:::outdated --> x9035538e1c606cb6(["slope_chopping_agb<br>chopping_agb"]):::outdated
     x01a6772d1976e35e(["slope_ltgnn_agb<br>ltgnn_agb"]):::outdated --> xa16d430869e8e273(["summary_slope_ltgnn_agb<br>slope_ltgnn_agb"]):::outdated
-    xd175b91b13bd123d(["az"]):::uptodate --> x88a086ea53d4cf03(["slope_plot_esa_agb<br>esa_agb"]):::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> x7200ced56d430735(["slope_plot_ltgnn_agb<br>ltgnn_agb"]):::outdated
+    x01a6772d1976e35e(["slope_ltgnn_agb<br>ltgnn_agb"]):::outdated --> x7200ced56d430735(["slope_plot_ltgnn_agb<br>ltgnn_agb"]):::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> x20b6251b56892c2a(["esa_agb"]):::outdated
+    x151ce04cb638b59b(["esa_files"]):::uptodate --> x20b6251b56892c2a(["esa_agb"]):::outdated
+    x2b62872927f90ba0(["slope_esa_agb<br>esa_agb"]):::outdated --> xb538f1edee56fb8e(["summary_slope_esa_agb<br>slope_esa_agb"]):::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> x88a086ea53d4cf03(["slope_plot_esa_agb<br>esa_agb"]):::outdated
     x2b62872927f90ba0(["slope_esa_agb<br>esa_agb"]):::outdated --> x88a086ea53d4cf03(["slope_plot_esa_agb<br>esa_agb"]):::outdated
-    x20b6251b56892c2a(["esa_agb"]):::uptodate --> xfd911c6a5ce68b32(["tiles_esa_agb<br>esa_agb"]):::outdated
-    x6768884bc669c5f9(["tiles_chopping_agb<br>chopping_agb"]):::uptodate --> xb5861ed11a909dd6["tiles_files_chopping_agb<br>chopping_agb"]:::uptodate
+    xf12eae5dccac7288["tiles_files_esa_agb<br>esa_agb"]:::outdated --> xb8c4f257f8f5cc00["slope_tiles_esa_agb<br>esa_agb"]:::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> x9126df164c036a5c(["liu_agb"]):::outdated
+    x19766d176d835c12(["liu_file"]):::uptodate --> x9126df164c036a5c(["liu_agb"]):::outdated
+    x1df925585a964a4f(["summary_stats"]):::outdated --> x000fd996de9c9b5d(["summary_plot"]):::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> x7b18c44a5b46e7c6(["slope_plot_liu_agb<br>liu_agb"]):::outdated
+    x19861953fb240462(["slope_liu_agb<br>liu_agb"]):::outdated --> x7b18c44a5b46e7c6(["slope_plot_liu_agb<br>liu_agb"]):::outdated
+    x55cd1a25824d6c45(["xu_agb"]):::outdated --> x3bcb242414a73cf6(["slope_xu_agb<br>xu_agb"]):::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> xc1dac2c05b606c65(["slope_plot_xu_agb<br>xu_agb"]):::outdated
+    x3bcb242414a73cf6(["slope_xu_agb<br>xu_agb"]):::outdated --> xc1dac2c05b606c65(["slope_plot_xu_agb<br>xu_agb"]):::outdated
+    x09b7490629889bf8["slope_tiles_chopping_agb<br>chopping_agb"]:::outdated --> x9035538e1c606cb6(["slope_chopping_agb<br>chopping_agb"]):::outdated
+    x4b1136645d9b9d11["slope_tiles_ltgnn_agb<br>ltgnn_agb"]:::outdated --> x01a6772d1976e35e(["slope_ltgnn_agb<br>ltgnn_agb"]):::outdated
+    xb8c4f257f8f5cc00["slope_tiles_esa_agb<br>esa_agb"]:::outdated --> x2b62872927f90ba0(["slope_esa_agb<br>esa_agb"]):::outdated
+    xb5861ed11a909dd6["tiles_files_chopping_agb<br>chopping_agb"]:::outdated --> x09b7490629889bf8["slope_tiles_chopping_agb<br>chopping_agb"]:::outdated
     x9035538e1c606cb6(["slope_chopping_agb<br>chopping_agb"]):::outdated --> x0d6d34d4d7cb30cd(["summary_slope_chopping_agb<br>slope_chopping_agb"]):::outdated
+    x20b6251b56892c2a(["esa_agb"]):::outdated --> xfd911c6a5ce68b32(["tiles_esa_agb<br>esa_agb"]):::outdated
+    x9035538e1c606cb6(["slope_chopping_agb<br>chopping_agb"]):::outdated --> xb72891f20a5b8df1(["report"]):::outdated
+    x19861953fb240462(["slope_liu_agb<br>liu_agb"]):::outdated --> xb72891f20a5b8df1(["report"]):::outdated
+    x3bcb242414a73cf6(["slope_xu_agb<br>xu_agb"]):::outdated --> xb72891f20a5b8df1(["report"]):::outdated
+    x000fd996de9c9b5d(["summary_plot"]):::outdated --> xb72891f20a5b8df1(["report"]):::outdated
+    x3bcb242414a73cf6(["slope_xu_agb<br>xu_agb"]):::outdated --> x1c4a7d9fb56ed3d5(["summary_slope_xu_agb<br>slope_xu_agb"]):::outdated
+    x000fd996de9c9b5d(["summary_plot"]):::outdated --> x14470e08f150281f(["summary_plot_png"]):::outdated
+    x75982fc74c8dba25(["az_file"]):::outdated --> xd175b91b13bd123d(["az"]):::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> xf4e158caecdccb15(["chopping_agb"]):::outdated
+    x34fa7583752e3167(["chopping_file"]):::uptodate --> xf4e158caecdccb15(["chopping_agb"]):::outdated
+    xf4e158caecdccb15(["chopping_agb"]):::outdated --> x6768884bc669c5f9(["tiles_chopping_agb<br>chopping_agb"]):::outdated
+    xd0c88814a818c03c["tiles_files_ltgnn_agb<br>ltgnn_agb"]:::outdated --> x4b1136645d9b9d11["slope_tiles_ltgnn_agb<br>ltgnn_agb"]:::outdated
+    x6768884bc669c5f9(["tiles_chopping_agb<br>chopping_agb"]):::outdated --> xb5861ed11a909dd6["tiles_files_chopping_agb<br>chopping_agb"]:::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> xf99622c5fc8ef45a(["ltgnn_agb"]):::outdated
+    x00f89745e3b925a1(["ltgnn_files"]):::uptodate --> xf99622c5fc8ef45a(["ltgnn_agb"]):::outdated
+    xf99622c5fc8ef45a(["ltgnn_agb"]):::outdated --> x7e3ed8ef27617b0c(["tiles_ltgnn_agb<br>ltgnn_agb"]):::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> x85cf752f78e30db8(["slope_plot_chopping_agb<br>chopping_agb"]):::outdated
+    x9035538e1c606cb6(["slope_chopping_agb<br>chopping_agb"]):::outdated --> x85cf752f78e30db8(["slope_plot_chopping_agb<br>chopping_agb"]):::outdated
+    xfd911c6a5ce68b32(["tiles_esa_agb<br>esa_agb"]):::outdated --> xf12eae5dccac7288["tiles_files_esa_agb<br>esa_agb"]:::outdated
     x0d6d34d4d7cb30cd(["summary_slope_chopping_agb<br>slope_chopping_agb"]):::outdated --> x1df925585a964a4f(["summary_stats"]):::outdated
     xb538f1edee56fb8e(["summary_slope_esa_agb<br>slope_esa_agb"]):::outdated --> x1df925585a964a4f(["summary_stats"]):::outdated
     x934c6d5503713b06(["summary_slope_liu_agb<br>slope_liu_agb"]):::outdated --> x1df925585a964a4f(["summary_stats"]):::outdated
     xa16d430869e8e273(["summary_slope_ltgnn_agb<br>slope_ltgnn_agb"]):::outdated --> x1df925585a964a4f(["summary_stats"]):::outdated
     x1c4a7d9fb56ed3d5(["summary_slope_xu_agb<br>slope_xu_agb"]):::outdated --> x1df925585a964a4f(["summary_stats"]):::outdated
-    xc11069275cfeb620(["readme"]):::outdated --> xc11069275cfeb620(["readme"]):::outdated
+    xd175b91b13bd123d(["az"]):::outdated --> x55cd1a25824d6c45(["xu_agb"]):::outdated
+    x4f83a8bb6986eb55(["xu_file"]):::uptodate --> x55cd1a25824d6c45(["xu_agb"]):::outdated
+    xc11069275cfeb620(["readme"]):::dispatched --> xc11069275cfeb620(["readme"]):::dispatched
   end
-  classDef uptodate stroke:#000000,color:#ffffff,fill:#354823;
   classDef outdated stroke:#000000,color:#000000,fill:#78B7C5;
+  classDef uptodate stroke:#000000,color:#ffffff,fill:#354823;
+  classDef dispatched stroke:#000000,color:#000000,fill:#DC863B;
   classDef none stroke:#000000,color:#000000,fill:#94a4ac;
   linkStyle 0 stroke-width:0px;
   linkStyle 1 stroke-width:0px;
   linkStyle 2 stroke-width:0px;
-  linkStyle 53 stroke-width:0px;
+  linkStyle 3 stroke-width:0px;
+  linkStyle 55 stroke-width:0px;
 ```
 
 Two packages that extend `targets` are used as well: `tarchetypes` and

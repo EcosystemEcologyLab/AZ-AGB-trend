@@ -15,7 +15,7 @@ library(quarto) #only required for rendering reports
 controller_local <- 
   crew::crew_controller_local(
     name = "local", 
-    workers = 4, # max of four workers
+    workers = 5, # max workers
     seconds_idle = 60, # how long a worker can be doing nothing before it is shut down
     local_log_directory = "logs"
   )
@@ -142,10 +142,17 @@ data <- tar_plan(
 )
 
 # Combine all the summary stats into one dataframe
-stats <- tar_combine(
-  summary_stats,
-  data,
-  command = dplyr::bind_rows(!!!.x, .id = "product")
+stats <- tar_plan(
+  tar_combine(
+    summary_stats,
+    data,
+    command = dplyr::bind_rows(!!!.x, .id = "product")
+  ),
+  tar_file(
+    summary_stats_csv,
+    readr::write_csv(summary_stats, "output/slope_summary.csv"),
+    packages = c("readr")
+  )
 )
 
 # plot summary statistics
