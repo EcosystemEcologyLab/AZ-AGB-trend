@@ -13,5 +13,6 @@ read_clean_xu <- function(file, region) {
   varnames(xu_agb) <- "AGB"
   
   # Project and crop
+  region <- terra::project(region, xu_agb)
   xu_agb |> crop(region) |> mask(region)
 }

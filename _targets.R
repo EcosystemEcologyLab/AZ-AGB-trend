@@ -15,14 +15,14 @@ library(quarto) #only required for rendering reports
 controller_local <- 
   crew::crew_controller_local(
     name = "local", 
-    workers = 4, # max of four workers
+    workers = 5, # max workers
     seconds_idle = 60, # how long a worker can be doing nothing before it is shut down
     local_log_directory = "logs"
   )
 
 # Set target options:
 tar_option_set(
-  packages = c("ncdf4", "terra", "fs", "purrr", "ncdf4", "car", "dplyr"), # Packages that your targets need for their tasks.
+  packages = c("ncdf4", "terra", "fs", "purrr", "car", "dplyr"), # Packages that your targets need for their tasks.
   controller = controller_local,
   # improve memory performance
   memory = "transient", 
@@ -49,7 +49,8 @@ files <- tar_plan(
   tar_file(liu_file, path(root, "Liu/Aboveground_Carbon_1993_2012.nc"), deployment = "main"),
   tar_file(xu_file, path(root, "Xu/test10a_cd_ab_pred_corr_2000_2019_v2.tif"), deployment = "main"),
   tar_file(ltgnn_files, fs::dir_ls(path(root, "LT_GNN"), glob = "*.zip"), deployment = "main"),
-  tar_terra_vect(az, get_az(), deployment = "main")
+  tar_file(az_file, path(root, "azboundary.geojson"), deployment = "main"),
+  tar_terra_vect(az, terra::vect(az_file), deployment = "main")
 )
 
 # Read in rasters and do some minimal data cleaning
@@ -141,10 +142,17 @@ data <- tar_plan(
 )
 
 # Combine all the summary stats into one dataframe
-stats <- tar_combine(
-  summary_stats,
-  data,
-  command = dplyr::bind_rows(!!!.x, .id = "product")
+stats <- tar_plan(
+  tar_combine(
+    summary_stats,
+    data,
+    command = dplyr::bind_rows(!!!.x, .id = "product")
+  ),
+  tar_file(
+    summary_stats_csv,
+    write_summary(summary_stats),
+    packages = c("readr")
+  )
 )
 
 # plot summary statistics
