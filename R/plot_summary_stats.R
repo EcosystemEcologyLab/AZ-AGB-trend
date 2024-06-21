@@ -9,19 +9,29 @@ plot_summary_stats <- function(data) {
       stringr::str_detect(product, "chopping") ~ "Chopping et al.",
       .default = product
     )) |> 
-    ggplot(aes(x = product)) +
-    #Median and inter-quartile range (IQR)
-    geom_pointrange(aes(y = median, ymin = q.25, ymax = q.75), linewidth = 2, fatten = 5) +
-    #95% of data
-    # geom_linerange(aes(ymin = q.025, ymax = q.975), linewidth = 1) +
-    #80% of data
-    geom_linerange(aes(ymin = q.1, ymax = q.9), linewidth = 1) +
-    #Dotted line at zero
-    geom_hline(yintercept = 0, linetype = 2, color = "grey20") +
-    ## add a point for mean?
-    # geom_point(aes(y = mean), shape = "cross", color = "blue", size = 4) +
-    labs(y = "Slope (Mg ha<sup>-1</sup> yr<sup>-1</sup>)", x = "") +
+    dplyr::mutate(subset = dplyr::case_when(
+      subset == "az" ~ "AZ",
+      subset == "forest" ~ "Forest Service",
+      subset == "wilderness" ~ "Wilderness",
+      subset == "grazing" ~ "Grazing Alotments",
+      .default = subset
+    )) |> 
+    ggplot(aes(x = product, y = median, color = median > 0)) +
+    facet_wrap(vars(subset), scales = "free_y") +
+    geom_hline(yintercept = 0, linetype = 3) +
+    geom_point() +
+    geom_linerange(aes(ymin = q.25, ymax = q.75), linewidth = 1.3) +
+    geom_linerange(aes(ymin = q.1, ymax = q.9), linewidth = 0.7) +
+    labs(
+      y = "Median Slope (Mg ha<sup>-1</sup> yr<sup>-1</sup>)",
+      x = " ",
+      color = "Median AGB Trend"
+    ) +
+    scale_color_manual(values = c("TRUE"="darkgreen", "FALSE"="darkred"),
+                       labels = c("TRUE" = "Increasing", "FALSE" = "Decreasing")) +
     theme_minimal() +
-    coord_flip() +
-    theme(axis.title = element_markdown())
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      axis.title = element_markdown()
+    ) 
 }
