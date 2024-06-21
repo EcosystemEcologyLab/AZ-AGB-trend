@@ -15,7 +15,7 @@ library(quarto) #only required for rendering reports
 controller_local <- 
   crew::crew_controller_local(
     name = "local", 
-    workers = 5, # max workers
+    workers = 2, # max workers
     seconds_idle = 60, # how long a worker can be doing nothing before it is shut down
     local_log_directory = "logs"
   )
