@@ -50,7 +50,18 @@ files <- tar_plan(
   tar_file(xu_file, path(root, "Xu/test10a_cd_ab_pred_corr_2000_2019_v2.tif"), deployment = "main"),
   tar_file(ltgnn_files, fs::dir_ls(path(root, "LT_GNN"), glob = "*.zip"), deployment = "main"),
   tar_file(az_file, path(root, "azboundary.geojson"), deployment = "main"),
-  tar_terra_vect(az, terra::vect(az_file), deployment = "main")
+  tar_file(forest_file, path(root, "USFS_Southwestern_Region_3_-_Administrative_Forest_Boundaries.geojson"), deployment = "main"),
+  tar_file(wilderness_file, path(root, "USFS_Southwestern_Region_3_-_Wilderness_Status.geojson"), deployment = "main"),
+  tar_file(grazing_file, path(root, "allot_-2546361503834281186.geojson"), deployment = "main")
+)
+
+vecs <- tar_plan(
+  tar_terra_vect(az, terra::vect(az_file), deployment = "main"),
+  tar_terra_vect(forest, read_az_landuse(forest_file, az), deployment = "main"),
+  #TODO there are different types of wilderness designation that might be of
+  #interest and this might need to be split into multiple vectors
+  tar_terra_vect(wilderness, read_az_landuse(wilderness_file, az), deployment = "main"),
+  tar_terra_vect(grazing, read_az_landuse(grazing_file, az), deployment = "main")
 )
 
 # Read in rasters and do some minimal data cleaning
@@ -126,17 +137,20 @@ slopes_big <- tar_plan(
 
 # Calculate summary stats for each slope raster
 data <- tar_plan(
-  tar_map(#for each raster
-    values = list(
+  tar_map(#for each raster * subset combination
+    values = tidyr::expand_grid(
       rasters = syms(c(
         "slope_liu_agb", "slope_xu_agb",
         "slope_esa_agb", "slope_chopping_agb", "slope_ltgnn_agb"
+      )),
+      subsets = syms(c(
+        "az", "forest", "wilderness", "grazing"
       ))
     ),
     #get summary stats
     tar_target(
       summary,
-      summarize_slopes(rasters)
+      summarize_slopes(rasters, subsets)
     )
   )
 )
@@ -146,7 +160,8 @@ stats <- tar_plan(
   tar_combine(
     summary_stats,
     data,
-    command = dplyr::bind_rows(!!!.x, .id = "product")
+    command = dplyr::bind_rows(!!!.x) |> 
+      arrange(subset, product)
   ),
   tar_file(
     summary_stats_csv,
@@ -176,6 +191,6 @@ render <- tar_plan(
 )
 
 #_targets.R must end with a list of targets.  They can be arbitrarily nested
-list(files, rasters, slopes_small,
+list(files, vecs, rasters, slopes_small,
      slopes_big,
      data, stats, plot, render)
