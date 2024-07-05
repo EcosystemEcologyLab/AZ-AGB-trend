@@ -106,7 +106,7 @@ slopes <- tar_plan(
   ),
   tar_terra_rast(slope_esa, merge(sprc(tiles_slope_esa)), description = "recombine tiles"),
   
-  tar_terra_tiles(tiles_agb_ltgnn, raster = agb_ltgnn, ncol = 5, nrow = 5),
+  tar_terra_tiles(tiles_agb_ltgnn, raster = agb_ltgnn, ncol = 6, nrow = 6),
   tar_terra_rast(
     tiles_slope_ltgnn,
     calc_slopes(tiles_agb_ltgnn),
