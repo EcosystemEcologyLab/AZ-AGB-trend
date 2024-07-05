@@ -82,6 +82,7 @@ inputs <- tar_plan(
 )
 
 # Calculate trends in AGB
+# Only some products have multiple layers, so only those are included in these targets
 slopes <- tar_plan(
   tar_terra_rast(slope_xu, calc_slopes(agb_xu)),
   tar_terra_rast(slope_liu, calc_slopes(agb_liu)),
@@ -94,7 +95,25 @@ slopes <- tar_plan(
     iteration = "list",
     pattern = map(tiles_agb_chopping)
   ), 
-  tar_terra_rast(slope_chopping, merge(sprc(tiles_slope_chopping)), description = "recombine tiles")
+  tar_terra_rast(slope_chopping, merge(sprc(tiles_slope_chopping)), description = "recombine tiles"),
+  
+  tar_terra_tiles(tiles_agb_esa, raster = agb_esa, ncol = 3, nrow = 3),
+  tar_terra_rast(
+    tiles_slope_esa,
+    calc_slopes(tiles_agb_esa),
+    iteration = "list",
+    pattern = map(tiles_agb_esa)
+  ),
+  tar_terra_rast(slope_esa, merge(sprc(tiles_slope_esa)), description = "recombine tiles"),
+  
+  tar_terra_tiles(tiles_agb_ltgnn, raster = agb_ltgnn, ncol = 5, nrow = 5),
+  tar_terra_rast(
+    tiles_slope_ltgnn,
+    calc_slopes(tiles_agb_ltgnn),
+    iteration = "list",
+    pattern = map(tiles_agb_ltgnn)
+  ),
+  tar_terra_rast(slope_ltgnn, merge(sprc(tiles_slope_ltgnn)), description = "recombine tiles")
 )
 # 
 # slopes_small <- tar_plan(
