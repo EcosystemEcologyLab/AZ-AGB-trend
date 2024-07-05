@@ -725,21 +725,21 @@
     },
     "geotargets": {
       "Package": "geotargets",
-      "Version": "0.1.0",
+      "Version": "0.1.0.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "geotargets",
       "RemoteUsername": "njtierney",
-      "RemotePkgRef": "njtierney/geotargets@v0.1.0",
-      "RemoteRef": "v0.1.0",
-      "RemoteSha": "290d106fce3996975c78662e5eb829088e10cf4b",
+      "RemotePkgRef": "njtierney/geotargets@4c6055169721a6076ca20b5922c3163917e7e315",
+      "RemoteRef": "4c6055169721a6076ca20b5922c3163917e7e315",
+      "RemoteSha": "4c6055169721a6076ca20b5922c3163917e7e315",
       "Requirements": [
         "cli",
         "rlang",
         "targets"
       ],
-      "Hash": "120df095b443a7a11af66858b06d2ae2"
+      "Hash": "0e34ea85fffba9d7c1de89eeed9e7a48"
     },
     "getip": {
       "Package": "getip",
@@ -2273,10 +2273,10 @@
     },
     "yaml": {
       "Package": "yaml",
-      "Version": "2.3.8",
+      "Version": "2.3.9",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "29240487a071f535f5e5d5a323b7afbd"
+      "Hash": "9cb28d11799d93c953f852083d55ee9e"
     }
   }
 }
