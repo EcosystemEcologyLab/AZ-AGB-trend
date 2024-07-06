@@ -431,14 +431,14 @@
     },
     "cli": {
       "Package": "cli",
-      "Version": "3.6.3",
+      "Version": "3.6.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "b21916dd77a27642b447374a5d30ecf3"
+      "Hash": "1216ac65ac55ec0058a6f75d7ca0fd52"
     },
     "clipr": {
       "Package": "clipr",
@@ -505,7 +505,7 @@
     },
     "crew": {
       "Package": "crew",
-      "Version": "0.9.5",
+      "Version": "0.9.4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -527,7 +527,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "1498e9c5b0f2a644d7c4a8534c9d20fe"
+      "Hash": "c75c1e1a48477aaf59fcb22f9d7681fa"
     },
     "curl": {
       "Package": "curl",
@@ -725,7 +725,7 @@
     },
     "geotargets": {
       "Package": "geotargets",
-      "Version": "0.1.0.9000",
+      "Version": "0.1.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
@@ -739,7 +739,7 @@
         "rlang",
         "targets"
       ],
-      "Hash": "0e34ea85fffba9d7c1de89eeed9e7a48"
+      "Hash": "5df6c366dca3b0e58a063cc445518efa"
     },
     "getip": {
       "Package": "getip",
@@ -1202,14 +1202,14 @@
     },
     "mirai": {
       "Package": "mirai",
-      "Version": "1.1.1",
+      "Version": "1.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "nanonext"
       ],
-      "Hash": "f8b0cda5304cad0b629e98c09aad5471"
+      "Hash": "bbf64662e3ff8ec43e4873c0fb623a3b"
     },
     "munsell": {
       "Package": "munsell",
@@ -1224,13 +1224,14 @@
     },
     "nanonext": {
       "Package": "nanonext",
-      "Version": "1.1.1",
+      "Version": "1.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
-        "R"
+        "R",
+        "later"
       ],
-      "Hash": "1f884ea35086b957409a9d351eaa2d9e"
+      "Hash": "8d5f7b21856f0752953fd3ccbd33928a"
     },
     "ncdf4": {
       "Package": "ncdf4",
@@ -1472,14 +1473,14 @@
     },
     "ps": {
       "Package": "ps",
-      "Version": "1.7.7",
+      "Version": "1.7.6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "878b467580097e9c383acbb16adab57a"
+      "Hash": "dd2b9319ee0656c8acf45c7f40c59de7"
     },
     "purrr": {
       "Package": "purrr",
@@ -1615,13 +1616,13 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "1.0.4",
+      "Version": "1.0.7",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "utils"
       ],
-      "Hash": "11abaf7c540ff33f94514d50f929bfd1"
+      "Hash": "397b7b2a265bc5a7a06852524dabae20"
     },
     "rlang": {
       "Package": "rlang",
@@ -2273,10 +2274,10 @@
     },
     "yaml": {
       "Package": "yaml",
-      "Version": "2.3.9",
+      "Version": "2.3.8",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "9cb28d11799d93c953f852083d55ee9e"
+      "Hash": "29240487a071f535f5e5d5a323b7afbd"
     }
   }
 }
