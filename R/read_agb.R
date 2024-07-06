@@ -39,7 +39,7 @@ process_tile <- function(rast, vect) {
   if (terra::relate(ext(rast), ext(vect), relation =  "disjoint")) {
     return(NULL)
     #if tile is completely within AZ, return as-is
-  } else if (terra::relate(ext(rast), ext(vect), relation = "within")) {
+  } else if (terra::relate(ext(rast), vect, relation = "within")) {
     return(rast)
     #otherwise, crop to AZ
   } else {
