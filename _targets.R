@@ -43,7 +43,8 @@ tar_source()
 #use local data in this project
 root <- "data"
 
-inputs <- tar_plan(
+# Inputs ------------------------------------------------------------------
+targets_inputs <- tar_plan(
   # create shapefiles for southwest
   tar_file_fast(file_az, "data/azboundary.geojson"),
   tar_terra_vect(az, terra::vect(file_az)),
@@ -81,9 +82,10 @@ inputs <- tar_plan(
   tar_terra_rast(agb_ltgnn, read_agb(dir_ltgnn, az))
 )
 
+# Slopes ------------------------------------------------------------------
 # Calculate trends in AGB
 # Only some products have multiple layers, so only those are included in these targets
-slopes <- tar_plan(
+targets_slopes <- tar_plan(
   tar_terra_rast(slope_xu, calc_slopes(agb_xu)),
   tar_terra_rast(slope_liu, calc_slopes(agb_liu)),
   
@@ -115,75 +117,29 @@ slopes <- tar_plan(
   ),
   tar_terra_rast(slope_ltgnn, merge(sprc(tiles_slope_ltgnn)), description = "recombine tiles")
 )
-# 
-# slopes_small <- tar_plan(
-#   tar_map(#for each data product
-#     values = list(
-#       product = syms(c("agb_xu", "agb_liu"))
-#     ),
-#     #calculate slopes
-#     tar_terra_rast(
-#       slope, 
-#       calc_slopes(product)
-#     ),
-#     # Then plot the slopes and export a .png
-#     tar_target(
-#       slope_plot,
-#       plot_slopes(slope, region = az),
-#       #packages only needed for plotting step:
-#       packages = c("ggplot2", "tidyterra", "colorspace", "stringr", "ggtext")
-#     )
-#   )
-# )
-# 
-# # for high resolution data products, need to break into tiles and do
-# # computations by tile to not run out of memory
-# slopes_big <- tar_plan(
-#   tar_map(# for each data product
-#     values = list(
-#       product = syms(c("agb_esa", "agb_chopping", "agb_ltgnn"))
-#     ),
-#     # split into tiles on disk
-#     tar_target(
-#       tiles,
-#       make_tiles(product),
-#     ),
-#     # track the resulting files
-#     tar_target(
-#       tiles_files,
-#       tiles,
-#       pattern = map(tiles),
-#       format = "file"
-#     ),
-#     # iterate over files to read them in and calculate slopes
-#     tar_terra_rast(
-#       slope_tiles,
-#       calc_slopes(terra::rast(tiles_files)),
-#       pattern = map(tiles_files),
-#       iteration = "list"
-#     ),
-#     # merge tiles together
-#     tar_terra_rast(
-#       slope,
-#       slope_tiles |> sprc() |> merge()
-#     ),
-#     # Then plot the slopes and export a .png
-#     tar_target(
-#       slope_plot,
-#       plot_slopes(slope, region = az),
-#       #packages only needed for plotting step:
-#       packages = c("ggplot2", "tidyterra", "colorspace", "stringr", "ggtext")
-#     )
-#   )
-# )
 
-# Calculate summary stats for each slope raster
-data <- tar_plan(
+targets_slope_plots <- tar_plan(
+  tar_map(
+    values = list(
+      product = syms(c(
+        "slope_xu", "slope_liu",
+        "slope_esa", "slope_chopping", "slope_ltgnn"
+      ))
+    ),
+    tar_file(
+      plot,
+      plot_slopes(product, region = az),
+      packages = c("ggplot2", "tidyterra", "colorspace", "stringr", "ggtext")
+    )
+  )
+)
+
+targets_slope_summary <- tar_plan(
   tar_map(#for each raster * subset combination
     values = tidyr::expand_grid(
       rasters = syms(c(
-        "slope_agb_liu", "slope_agb_xu",
-        "slope_agb_esa", "slope_agb_chopping", "slope_agb_ltgnn"
+        "slope_liu", "slope_xu",
+        "slope_esa", "slope_chopping", "slope_ltgnn"
       )),
       subsets = syms(c(
         "az", "forest", "wilderness", "grazing"
@@ -197,47 +153,49 @@ data <- tar_plan(
   )
 )
 
-# Combine all the summary stats into one dataframe
-stats <- tar_plan(
+targets_slope_summary_combine <- tar_plan(
   tar_combine(
-    summary_stats,
-    data,
+    slope_summary,
+    targets_slope_summary, #combine all the targets defined above in slope_summary
     command = dplyr::bind_rows(!!!.x) |> 
       arrange(subset, product)
   ),
   tar_file(
-    summary_stats_csv,
-    write_summary(summary_stats),
+    slope_summary_csv,
+    write_summary(slope_summary, "output/slopes/"),
     packages = c("readr")
   )
 )
-
-# plot summary statistics
-plot <- tar_plan(
-  tar_target(
-    summary_plot,
-    plot_summary_stats(summary_stats),
-    packages = c("ggplot2", "ggtext")
-  ),
-  tar_target(
-    summary_plot_png,
-    ggsave("output/figs/summary_plot.png", summary_plot, bg = "white"),
-    format = "file"
-  )
-)
-
-# Render .Qmd documents
-render <- tar_plan(
-  tar_quarto(readme, "README.qmd"),
-  tar_quarto(report, "docs/index.qmd")
-)
+ 
+# # plot summary statistics
+# plot <- tar_plan(
+#   tar_target(
+#     summary_plot,
+#     plot_summary_stats(summary_stats),
+#     packages = c("ggplot2", "ggtext")
+#   ),
+#   tar_target(
+#     summary_plot_png,
+#     ggsave("output/figs/summary_plot.png", summary_plot, bg = "white"),
+#     format = "file"
+#   )
+# )
+# 
+# # Render .Qmd documents
+# render <- tar_plan(
+#   tar_quarto(readme, "README.qmd"),
+#   tar_quarto(report, "docs/index.qmd")
+# )
 
 #_targets.R must end with a list of targets.  They can be arbitrarily nested
-list(inputs,
-     slopes,
-     # slopes_small,
-     # slopes_big,
-     data,
-     stats,
-     plot,
-     render)
+list(
+  targets_inputs,
+  targets_slopes,
+  targets_slope_plots,
+  targets_slope_summary,
+  targets_slope_summary_combine
+  # data,
+  # stats,
+  # plot,
+  # render
+)

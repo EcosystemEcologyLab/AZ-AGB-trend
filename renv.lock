@@ -431,14 +431,14 @@
     },
     "cli": {
       "Package": "cli",
-      "Version": "3.6.2",
+      "Version": "3.6.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "1216ac65ac55ec0058a6f75d7ca0fd52"
+      "Hash": "b21916dd77a27642b447374a5d30ecf3"
     },
     "clipr": {
       "Package": "clipr",
@@ -725,21 +725,21 @@
     },
     "geotargets": {
       "Package": "geotargets",
-      "Version": "0.1.0",
+      "Version": "0.1.0.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "geotargets",
       "RemoteUsername": "njtierney",
-      "RemotePkgRef": "njtierney/geotargets@4c6055169721a6076ca20b5922c3163917e7e315",
-      "RemoteRef": "4c6055169721a6076ca20b5922c3163917e7e315",
+      "RemotePkgRef": "njtierney/geotargets@4c60551",
+      "RemoteRef": "4c60551",
       "RemoteSha": "4c6055169721a6076ca20b5922c3163917e7e315",
       "Requirements": [
         "cli",
         "rlang",
         "targets"
       ],
-      "Hash": "5df6c366dca3b0e58a063cc445518efa"
+      "Hash": "128107a08851a1aa27d4b10fca2af3f8"
     },
     "getip": {
       "Package": "getip",
@@ -1473,14 +1473,14 @@
     },
     "ps": {
       "Package": "ps",
-      "Version": "1.7.6",
+      "Version": "1.7.7",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "dd2b9319ee0656c8acf45c7f40c59de7"
+      "Hash": "878b467580097e9c383acbb16adab57a"
     },
     "purrr": {
       "Package": "purrr",
@@ -2274,10 +2274,10 @@
     },
     "yaml": {
       "Package": "yaml",
-      "Version": "2.3.8",
+      "Version": "2.3.9",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "29240487a071f535f5e5d5a323b7afbd"
+      "Hash": "9cb28d11799d93c953f852083d55ee9e"
     }
   }
 }
