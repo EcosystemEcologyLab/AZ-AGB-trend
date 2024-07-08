@@ -22,7 +22,7 @@ controller_local <-
 
 # Set target options:
 tar_option_set(
-  packages = c("ncdf4", "terra", "geotargets", "fs", "purrr", "car", "dplyr"), # Packages that your targets need for their tasks.
+  packages = c("ncdf4", "terra", "geotargets", "fs", "purrr", "car", "dplyr", "exactextractr", "sf"), # Packages that your targets need for their tasks.
   controller = controller_local,
   # improve memory performance
   memory = "transient", 
