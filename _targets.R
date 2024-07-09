@@ -142,7 +142,7 @@ targets_slope_summary <- tar_plan(
         "slope_esa", "slope_chopping", "slope_ltgnn"
       )),
       subsets = syms(c(
-        "az", "forest", "wilderness", "grazing"
+        "az", "forest", "wilderness", "grazing", "pima"
       ))
     ),
     #get summary stats
