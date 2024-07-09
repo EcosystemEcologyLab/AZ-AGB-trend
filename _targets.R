@@ -162,7 +162,7 @@ targets_slope_summary_combine <- tar_plan(
   ),
   tar_file(
     slope_summary_csv,
-    write_summary(slope_summary, "output/slopes/"),
+    tar_write_csv(slope_summary, "output/slopes/slopes_summary.csv"),
     packages = c("readr")
   )
 )
