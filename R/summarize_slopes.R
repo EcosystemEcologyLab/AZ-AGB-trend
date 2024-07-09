@@ -2,7 +2,10 @@ summarize_slopes <- function(raster, sub_vect) {
   raster_name <- deparse(substitute(raster))
   sub_vect_name <- deparse(substitute(sub_vect))
   raster <- raster[["slope"]] #only use coef layer, not p-value layer
-  sub_vect <- terra::project(sub_vect, raster) |> sf::st_as_sf()
+  sub_vect <- 
+    terra::project(sub_vect, raster) |> 
+    sf::st_as_sf() |> 
+    sf::st_combine() #converts to single multipolygon so only one row of summary stats per subset x product
   
   exactextractr::exact_extract(
     raster, sub_vect, fun = c(

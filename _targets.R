@@ -52,10 +52,9 @@ targets_inputs <- tar_plan(
   tar_terra_vect(pima, terra::vect(dir_pima)),
   tar_file_fast(file_forest, "data/USFS_Southwestern_Region_3_-_Administrative_Forest_Boundaries.geojson"),
   tar_terra_vect(forest, read_az_landuse(file_forest, az)),
-  #TODO there are different types of wilderness designation that might be of
-  #interest and this might need to be split into multiple vectors
   tar_file_fast(file_wilderness, "data/USFS_Southwestern_Region_3_-_Wilderness_Status.geojson"),
-  tar_terra_vect(wilderness, read_az_landuse(file_wilderness, az)),
+  #currently subsets to just national wilderness
+  tar_terra_vect(wilderness, read_az_wilderness(file_wilderness, az)),
   tar_file_fast(file_grazing, "data/allot_-2546361503834281186.geojson"),
   tar_terra_vect(grazing, read_az_landuse(file_grazing, az)),
   
@@ -168,24 +167,23 @@ targets_slope_summary_combine <- tar_plan(
 )
  
 # # plot summary statistics
-# plot <- tar_plan(
-#   tar_target(
-#     summary_plot,
-#     plot_summary_stats(summary_stats),
-#     packages = c("ggplot2", "ggtext")
-#   ),
-#   tar_target(
-#     summary_plot_png,
-#     ggsave("output/figs/summary_plot.png", summary_plot, bg = "white"),
-#     format = "file"
-#   )
-# )
-# 
+targets_slope_summary_plot <- tar_plan(
+  tar_target(
+    slope_summary_plot,
+    plot_summary_stats(slope_summary),
+    packages = c("ggplot2", "ggtext")
+  ),
+  tar_file(
+    slope_summary_plot_png,
+    ggplot2::ggsave("output/slopes/figs/summary_plot.png", slope_summary_plot, bg = "white")
+  )
+)
+
 # # Render .Qmd documents
-# render <- tar_plan(
-#   tar_quarto(readme, "README.qmd"),
-#   tar_quarto(report, "docs/index.qmd")
-# )
+render <- tar_plan(
+  tar_quarto(readme, "README.qmd"),
+  # tar_quarto(report, "docs/index.qmd")
+)
 
 #_targets.R must end with a list of targets.  They can be arbitrarily nested
 list(
@@ -193,9 +191,7 @@ list(
   targets_slopes,
   targets_slope_plots,
   targets_slope_summary,
-  targets_slope_summary_combine
-  # data,
-  # stats,
-  # plot,
-  # render
+  targets_slope_summary_combine,
+  targets_slope_summary_plot,
+  render
 )
