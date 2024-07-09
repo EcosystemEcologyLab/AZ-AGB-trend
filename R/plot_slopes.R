@@ -45,12 +45,13 @@ plot_slopes <- function(slope_rast, region, target_name = NULL, save = TRUE, ext
   )
   
   #project to common CRS and extent for uniform plotting
-  #better to do this before plotting
-  # slope_rast <- project(slope_rast, crs(region)) |> crop(region)
+  region <- project(region, "+proj=longlat +datum=WGS84 +no_defs")
+  slope_rast <- project(slope_rast, crs(region)) |> crop(region, mask = TRUE)
   
   p <-
     ggplot() +
     geom_spatraster(data = slope_rast, aes(fill = slope)) +
+    geom_spatvector(data = region, fill = NA) +
     labs(title = title, subtitle = years, fill = "∆AGB <br>(Mg Ha<sup>-1</sup> yr<sup>-1</sup>)") +
     theme_dark() +
     theme(legend.title = element_markdown())
@@ -66,7 +67,7 @@ plot_slopes <- function(slope_rast, region, target_name = NULL, save = TRUE, ext
   if (isTRUE(save)) {
     
     filename <- fs::path_ext_set(target_name, ext)
-    ggsave(filename = filename, plot = p, path = outdir, ...)
+    ggsave(filename = filename, plot = p, path = outdir, bg = "white", ...)
     
     #return
     return(invisible(fs::path(outdir, filename)))
