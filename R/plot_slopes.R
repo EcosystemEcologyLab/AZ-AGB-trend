@@ -23,8 +23,9 @@
 #' @examples
 #' plot_slopes(tar_read(slope_liu_agb), limits = c(-1, 1), width = 5, height = 5)
 #' 
-plot_slopes <- function(slope_rast, region, target_name = NULL, save = TRUE, ext = "png", outdir = "output/figs", limits = NULL, ...) {
+plot_slopes <- function(slope_rast, region, target_name = NULL, save = TRUE, ext = "png", outdir = "output/slopes/figs", limits = NULL, ...) {
   
+  fs::dir_create(outdir)
   #varnames are lost in current version of geotargets, so pull from target name instead
   target_name <- as.character(rlang::ensym(slope_rast))
   title <- dplyr::case_when(

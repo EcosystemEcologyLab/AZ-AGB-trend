@@ -8,17 +8,41 @@ read_agb <- function(path, vect) {
     
     out <- 
       terra::rast(path, win = terra::ext(vect)) |> 
-      terra::crop(vect, mask = TRUE)
+      terra::crop(vect, mask = TRUE, overwrite = TRUE)
   }
   if (fs::is_dir(path)) { #if tiles, merge them
-    #TODO apply window to these as well so unecessary tiles don't get read in
     tifs <- fs::dir_ls(path, glob = "*.tif") 
     vrt_crs <- terra::crs(terra::rast(tifs[1])) 
     vect <- vect |> terra::project(vrt_crs)
     
+    # for each tile, either drop it (if not in vect), keep it whole (if
+    # completely inside vect), or crop it to borders of vect.  In benchmarking
+    # this ended up being faster than using a vrt() and then cropping and
+    # masking.
+    # TODO: could potentially speed this up with furrr, but might be tricky with `targets`?
+    rast_list <- 
+      purrr::map(tifs, terra::rast) |> 
+      purrr::map(\(x) process_tile(x, vect)) |> 
+      purrr::compact()
+    
     out <-
-      vrt(tifs, set_names = TRUE) |> 
-      crop(vect, mask = TRUE)
+      rast_list |>
+      sprc() |>
+      merge()
   }
   out
+}
+
+# for a single tile in a list of tiles
+process_tile <- function(rast, vect) {
+  #if tile is not at all within AZ, return NULL
+  if (terra::relate(ext(rast), ext(vect), relation =  "disjoint")) {
+    return(NULL)
+    #if tile is completely within AZ, return as-is
+  } else if (terra::relate(ext(rast), vect, relation = "within")) {
+    return(rast)
+    #otherwise, crop to AZ
+  } else {
+    return(crop(rast, vect, mask = TRUE, overwrite = TRUE))
+  }
 }
