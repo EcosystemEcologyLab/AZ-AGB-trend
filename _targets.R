@@ -73,14 +73,94 @@ targets_inputs <- tar_plan(
   # Read in rasters (all layers for now)
   tar_terra_rast(agb_xu, read_agb(file_xu, az)),
   tar_terra_rast(agb_liu, read_agb(file_liu, az)),
-  tar_terra_rast(agb_menlove, read_agb(file_menlove, az)),
-  tar_terra_rast(agb_gedi, read_agb(file_gedi, az)),
   tar_terra_rast(agb_chopping, read_agb(file_chopping, az)),
-  
   tar_terra_rast(agb_esa, read_agb(dir_esa, az)),
-  tar_terra_rast(agb_ltgnn, read_agb(dir_ltgnn, az))
+  tar_terra_rast(agb_ltgnn, read_agb(dir_ltgnn, az)),
+  
 )
 
+
+# Yearly summary stats ----------------------------------------------------
+
+target_yearly <- tar_plan(
+  tar_map(
+    values = tidyr::expand_grid(
+      product = syms(c("agb_esa", "agb_xu", "agb_liu", "agb_chopping", "agb_ltgnn")),
+      subset = syms(c("az", "forest", "wilderness", "grazing", "pima"))
+    ),
+    tar_target(
+      summary,
+      summarize_yearly(product, subset)
+    )
+  )
+)
+
+target_yearly_summary <- tar_plan(
+  tar_combine(
+    summary_yearly,
+    target_yearly, #all the targets defined above
+    command = dplyr::bind_rows(!!!.x) |> 
+      arrange(subset, product)
+  ),
+  tar_file(
+    summary_yearly_csv,
+    tar_write_csv(summary_yearly, "output/yearly/")
+  )
+)
+
+# Averages ----------------------------------------------------------------
+target_averages <- tar_plan(
+  # These products just have one layer that is an average over time
+  tar_terra_rast(avg_menlove, read_agb(file_menlove, az)),
+  tar_terra_rast(avg_gedi, read_agb(file_gedi, az)),
+  
+  # These need to be calculated
+  tar_terra_rast(avg_esa, mean(agb_esa, na.rm = TRUE)),
+  tar_terra_rast(avg_xu, mean(agb_xu, na.rm = TRUE)),
+  tar_terra_rast(avg_liu, mean(agb_liu, na.rm = TRUE)),
+  tar_terra_rast(avg_chopping, mean(agb_chopping, na.rm = TRUE)),
+  tar_terra_rast(avg_ltgnn, mean(agb_ltgnn, na.rm = TRUE))
+)
+
+target_avg_maps <- tar_plan(
+  tar_map(
+    values = list(
+      product = syms(c("avg_menlove", "avg_gedi", "avg_esa", "avg_xu", "avg_liu", "avg_chopping", "avg_ltgnn"))
+    ),
+    tar_file(
+      map,
+      plot_avg_map(product, az),
+      packages = c("ggplot2", "tidyterra", "colorspace", "stringr", "ggtext")
+    )
+  )
+)
+
+target_avg_summary <- tar_plan(
+  tar_map(
+    values = tidyr::expand_grid(
+      avg_products = syms(c("avg_menlove", "avg_gedi", "avg_esa", "avg_xu", "avg_liu", "avg_chopping", "avg_ltgnn")),
+      subsets = syms(c("az", "forest", "wilderness", "grazing", "pima"))
+    ),
+    tar_target(
+      summary,
+      summarize_means(avg_products, subsets)
+    )
+  )
+)
+
+target_avg_summary_combine <- tar_plan(
+  tar_combine(
+    summary_avg,
+    target_avg_summary, #all the targets defined above
+    command = dplyr::bind_rows(!!!.x) |> 
+      arrange(subset, product)
+  ),
+  tar_file(
+    summary_avg_csv,
+    tar_write_csv(summary_avg, "output/average/average_summary.csv"),
+    packages = c("readr")
+  )
+)
 # Slopes ------------------------------------------------------------------
 # Calculate trends in AGB
 # Only some products have multiple layers, so only those are included in these targets
@@ -127,8 +207,9 @@ targets_slope_plots <- tar_plan(
     ),
     tar_file(
       plot,
-      plot_slopes(product, region = az),
-      packages = c("ggplot2", "tidyterra", "colorspace", "stringr", "ggtext")
+      plot_slopes(product, az),
+      packages = c("ggplot2", "tidyterra", "colorspace", "stringr", "ggtext"),
+      garbage_collection = TRUE
     )
   )
 )
@@ -154,14 +235,14 @@ targets_slope_summary <- tar_plan(
 
 targets_slope_summary_combine <- tar_plan(
   tar_combine(
-    slope_summary,
+    summary_slope,
     targets_slope_summary, #combine all the targets defined above in slope_summary
     command = dplyr::bind_rows(!!!.x) |> 
       arrange(subset, product)
   ),
   tar_file(
-    slope_summary_csv,
-    tar_write_csv(slope_summary, "output/slopes/slopes_summary.csv"),
+    summary_slope_csv,
+    tar_write_csv(summary_slope, "output/slopes/slopes_summary.csv"),
     packages = c("readr")
   )
 )
@@ -169,13 +250,13 @@ targets_slope_summary_combine <- tar_plan(
 # # plot summary statistics
 targets_slope_summary_plot <- tar_plan(
   tar_target(
-    slope_summary_plot,
-    plot_summary_stats(slope_summary),
+    summary_slope_plot,
+    plot_summary_stats(summary_slope),
     packages = c("ggplot2", "ggtext")
   ),
   tar_file(
-    slope_summary_plot_png,
-    ggplot2::ggsave("output/slopes/figs/summary_plot.png", slope_summary_plot, bg = "white")
+    summary_slope_plot_png,
+    ggplot2::ggsave("output/slopes/figs/summary_plot.png", summary_slope_plot, bg = "white")
   )
 )
 
@@ -188,10 +269,20 @@ render <- tar_plan(
 #_targets.R must end with a list of targets.  They can be arbitrarily nested
 list(
   targets_inputs,
+  
+  target_yearly,
+  target_yearly_summary,
+  
+  target_averages,
+  target_avg_summary,
+  target_avg_summary_combine,
+  target_avg_maps,
+  
   targets_slopes,
   targets_slope_plots,
   targets_slope_summary,
   targets_slope_summary_combine,
   targets_slope_summary_plot,
+  
   render
 )
