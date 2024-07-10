@@ -15,7 +15,7 @@ library(quarto) #only required for rendering reports
 controller_local <- 
   crew::crew_controller_local(
     name = "local", 
-    workers = 4, # max workers
+    workers = 3, # max workers
     seconds_idle = 60, # how long a worker can be doing nothing before it is shut down
     local_log_directory = "logs"
   )
@@ -104,7 +104,7 @@ target_yearly_summary <- tar_plan(
   ),
   tar_file(
     summary_yearly_csv,
-    tar_write_csv(summary_yearly, "output/yearly/")
+    tar_write_csv(summary_yearly, "output/yearly/yearly_summary.csv")
   )
 )
 
@@ -286,3 +286,10 @@ list(
   
   render
 )
+
+
+# Product comparison ------------------------------------------------------
+
+# re-project to common CRS and resolution and calculate pixel-wise standard
+# deviation across products to get a sense of how variation ("disagreement")
+# varies spatially

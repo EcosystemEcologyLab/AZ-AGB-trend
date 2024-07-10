@@ -17,7 +17,9 @@ summarize_yearly <- function(raster, sub_vect) {
       "sum",
       "quantile"
     ),
-    quantiles = c(0.025, 0.1, 0.25, 0.75, 0.9, 0.975)
+    quantiles = c(0.025, 0.1, 0.25, 0.75, 0.9, 0.975),
+    max_cells_in_memory = 1e+07, #to lower RAM usage maybe?
+    stack_apply = TRUE #slower but less RAM usage maybe?
   ) |> 
     tidyr::pivot_longer(everything(), names_sep = "\\.", names_to = c("stat", "year")) |> 
     tidyr::pivot_wider(names_from = "stat", values_from = "value") |> 
