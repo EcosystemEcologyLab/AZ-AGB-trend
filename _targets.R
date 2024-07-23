@@ -58,12 +58,12 @@ targets_inputs <- tar_plan(
   tar_terra_vect(az, terra::vect(file_az)),
   tar_file_fast(dir_pima, path(root, "shapefiles/pima_county/Pima_County_Boundary.geojson")),
   tar_terra_vect(pima, terra::vect(dir_pima)),
-  tar_file_fast(file_forest, path(root, "shapefiles/sw_forest/R03_AdministrativeForest_-2750697026511621369/AdministrativeForest.shp")),
+  tar_file_fast(file_forest, path(root, "shapefiles/sw_forest/R03_AdministrativeForest_8682094378425567158.gpkg")),
   tar_terra_vect(forest, read_az_landuse(file_forest, az)),
-  tar_file_fast(file_wilderness, path(root, "shapefiles/sw_wilderness/R03_WildernessStatus_2471728660373494475/Wilderness.shp")),
+  tar_file_fast(file_wilderness, path(root, "shapefiles/sw_wilderness/R03_WildernessStatus_-8694334871182256119.gpkg")),
   #currently subsets to just national wilderness
   tar_terra_vect(wilderness, read_az_wilderness(file_wilderness, az)),
-  tar_file_fast(file_grazing, path(root, "shapefiles/sw_grazing/allot_-2546361503834281186.geojson")),
+  tar_file_fast(file_grazing, path(root, "shapefiles/sw_grazing/allot_-3402377083130374287.gpkg")),
   tar_terra_vect(grazing, read_az_landuse(file_grazing, az)),
   
   # Track raster files 
