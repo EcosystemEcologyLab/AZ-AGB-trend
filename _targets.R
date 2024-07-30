@@ -67,7 +67,7 @@ targets_inputs <- tar_plan(
   tar_terra_vect(grazing, read_az_landuse(file_grazing, az)),
   
   # Track raster files 
-  tar_file_fast(file_xu,       fs::path(root, "AGB_cleaned/xu/xu_2000-2029.tif")),
+  tar_file_fast(file_xu,       fs::path(root, "AGB_cleaned/xu/xu_2000-2019.tif")),
   tar_file_fast(file_liu,      fs::path(root, "AGB_cleaned/liu/liu_1993-2012.tif")),
   tar_file_fast(file_menlove,  fs::path(root, "AGB_cleaned/menlove/menlove_2009-2019.tif")),
   tar_file_fast(file_gedi,     fs::path(root, "AGB_cleaned/gedi/gedi_2019-2023.tif")),
