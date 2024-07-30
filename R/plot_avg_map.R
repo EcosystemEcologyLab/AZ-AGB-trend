@@ -50,7 +50,8 @@ plot_avg_map <- function(raster, subset, ext = "png", outdir = "output/average/f
   raster <- 
     raster |> 
     terra::project(plot_crs) |> 
-    terra::crop(subset, mask = TRUE) 
+    terra::crop(subset) |> 
+    terra::mask(subset)
   
   # Subset of colors from the scio pacakge batlow_w palette
   map_cols <- c("#EFB298", "#C39E4B", "#7D8737", "#437153", "#185661", "#0C325D")

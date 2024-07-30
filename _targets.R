@@ -20,6 +20,14 @@ controller_local <-
     local_log_directory = "logs"
   )
 
+# Use d:// drive for targets store so all have access
+# TODO: this doesn't work and also might not be a good idea because different
+# people using the same _targets/ store will cause race conditions and
+# overwriting of work.  Versioned S3 bucket is a better way to go for this.
+# tar_config_set(
+#   store = "d://targets_stores/AZ-AGB-trend/_targets"
+# )
+
 # Set target options:
 tar_option_set(
   packages = c("ncdf4", "terra", "geotargets", "fs", "purrr", "car", "dplyr", "exactextractr", "sf"), # Packages that your targets need for their tasks.
@@ -41,25 +49,25 @@ tar_source()
 # root <- "/Volumes/moore/"
 
 #use local data in this project
-root <- "data"
+root <- "d://"
 
 # Inputs ------------------------------------------------------------------
 targets_inputs <- tar_plan(
   # create shapefiles for southwest
-  tar_file_fast(file_az, "data/azboundary.geojson"),
+  tar_file_fast(file_az, path(root, "shapefiles/az_border/azboundary.geojson")),
   tar_terra_vect(az, terra::vect(file_az)),
-  tar_file_fast(dir_pima, "data/Pima_County_Boundary/"),
+  tar_file_fast(dir_pima, path(root, "shapefiles/pima_county/Pima_County_Boundary.geojson")),
   tar_terra_vect(pima, terra::vect(dir_pima)),
-  tar_file_fast(file_forest, "data/USFS_Southwestern_Region_3_-_Administrative_Forest_Boundaries.geojson"),
+  tar_file_fast(file_forest, path(root, "shapefiles/sw_forest/R03_AdministrativeForest_8682094378425567158.gpkg")),
   tar_terra_vect(forest, read_az_landuse(file_forest, az)),
-  tar_file_fast(file_wilderness, "data/USFS_Southwestern_Region_3_-_Wilderness_Status.geojson"),
+  tar_file_fast(file_wilderness, path(root, "shapefiles/sw_wilderness/R03_WildernessStatus_-8694334871182256119.gpkg")),
   #currently subsets to just national wilderness
   tar_terra_vect(wilderness, read_az_wilderness(file_wilderness, az)),
-  tar_file_fast(file_grazing, "data/allot_-2546361503834281186.geojson"),
+  tar_file_fast(file_grazing, path(root, "shapefiles/sw_grazing/allot_-3402377083130374287.gpkg")),
   tar_terra_vect(grazing, read_az_landuse(file_grazing, az)),
   
   # Track raster files 
-  tar_file_fast(file_xu,       fs::path(root, "AGB_cleaned/xu/xu_2000-2029.tif")),
+  tar_file_fast(file_xu,       fs::path(root, "AGB_cleaned/xu/xu_2000-2019.tif")),
   tar_file_fast(file_liu,      fs::path(root, "AGB_cleaned/liu/liu_1993-2012.tif")),
   tar_file_fast(file_menlove,  fs::path(root, "AGB_cleaned/menlove/menlove_2009-2019.tif")),
   tar_file_fast(file_gedi,     fs::path(root, "AGB_cleaned/gedi/gedi_2019-2023.tif")),
@@ -260,6 +268,13 @@ targets_slope_summary_plot <- tar_plan(
   )
 )
 
+# Product comparison ------------------------------------------------------
+
+# re-project to common CRS and resolution and calculate pixel-wise standard
+# deviation across products to get a sense of how variation ("disagreement")
+# varies spatially
+
+
 # # Render .Qmd documents
 render <- tar_plan(
   tar_quarto(readme, "README.qmd"),
@@ -286,10 +301,3 @@ list(
   
   render
 )
-
-
-# Product comparison ------------------------------------------------------
-
-# re-project to common CRS and resolution and calculate pixel-wise standard
-# deviation across products to get a sense of how variation ("disagreement")
-# varies spatially
