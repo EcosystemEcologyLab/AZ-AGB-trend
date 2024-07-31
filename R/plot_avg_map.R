@@ -19,29 +19,31 @@
 #'
 plot_avg_map <- function(raster, subset, ext = "png", outdir = "output/average/figs/", ...) {
   fs::dir_create(outdir)
-  #varnames are lost in current version of geotargets, so pull from target name instead
-  target_name <- as.character(rlang::ensym(raster))
+  raster_name <- as.character(rlang::ensym(raster))
+  subset_name <- as.character(rlang::ensym(subset))
+  filename <- fs::path_ext_set(paste(raster_name, subset_name, sep = "_"), ext)
+  
   
   #build title and subtitle
   title <- dplyr::case_when(
-    stringr::str_detect(target_name, "liu") ~ "Liu et al.",
-    stringr::str_detect(target_name, "xu") ~ "Xu et al.",
-    stringr::str_detect(target_name, "esa") ~ "ESA CCI",
-    stringr::str_detect(target_name, "ltgnn") ~ "LT-GNN",
-    stringr::str_detect(target_name, "chopping") ~ "Chopping et al.",
-    stringr::str_detect(target_name, "menlove") ~ "Menlove et al.",
-    stringr::str_detect(target_name, "gedi") ~ "GEDI", 
-    .default = target_name
+    stringr::str_detect(raster_name, "liu") ~ "Liu et al.",
+    stringr::str_detect(raster_name, "xu") ~ "Xu et al.",
+    stringr::str_detect(raster_name, "esa") ~ "ESA CCI",
+    stringr::str_detect(raster_name, "ltgnn") ~ "LT-GNN",
+    stringr::str_detect(raster_name, "chopping") ~ "Chopping et al.",
+    stringr::str_detect(raster_name, "menlove") ~ "Menlove et al.",
+    stringr::str_detect(raster_name, "gedi") ~ "GEDI", 
+    .default = raster_name
   )
   
   years <- dplyr::case_when(
-    stringr::str_detect(target_name, "liu") ~ "1993-2012",
-    stringr::str_detect(target_name, "xu") ~ "2000-2019",
-    stringr::str_detect(target_name, "esa") ~ "2010, 2017-2020",
-    stringr::str_detect(target_name, "ltgnn") ~ "1990-2017",
-    stringr::str_detect(target_name, "chopping") ~ "2000-2021",
-    stringr::str_detect(target_name, "menlove") ~ "2009-2019",
-    stringr::str_detect(target_name, "gedi") ~ "2019-2023"
+    stringr::str_detect(raster_name, "liu") ~ "1993-2012",
+    stringr::str_detect(raster_name, "xu") ~ "2000-2019",
+    stringr::str_detect(raster_name, "esa") ~ "2010, 2017-2020",
+    stringr::str_detect(raster_name, "ltgnn") ~ "1990-2017",
+    stringr::str_detect(raster_name, "chopping") ~ "2000-2021",
+    stringr::str_detect(raster_name, "menlove") ~ "2009-2019",
+    stringr::str_detect(raster_name, "gedi") ~ "2019-2023"
   )
   # project to common CRS and crop to subset
   plot_crs <- "+proj=longlat +datum=WGS84 +no_defs"
@@ -69,11 +71,11 @@ plot_avg_map <- function(raster, subset, ext = "png", outdir = "output/average/f
     theme_dark() +
     theme(legend.title = ggtext::element_markdown())
   
-  filename <- fs::path_ext_set(target_name, ext)
   ggsave(filename = filename, plot = p, path = outdir, bg = "white", ...)
   
   #return
   return(invisible(fs::path(outdir, filename)))
+  
   
 }
 # plot_avg_map(avg_gedi, az)
