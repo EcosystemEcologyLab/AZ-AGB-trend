@@ -273,10 +273,54 @@ targets_slope_summary_plot <- tar_plan(
 # re-project to common CRS and resolution and calculate pixel-wise standard
 # deviation across products to get a sense of how variation ("disagreement")
 # varies spatially
+targets_comparison <- tar_plan(
+  tar_terra_rast(
+    avg_stack,
+    reproject_stack(avg_esa, avg_menlove, avg_gedi, avg_xu, avg_liu, avg_chopping, avg_ltgnn)
+  ),
+  tar_terra_rast(
+    stdev,
+    terra::stdev(avg_stack, na.rm = TRUE),
+    description = "Calculate pixel-wise standard deviation across product means"
+  ),
+  tar_file(
+    stdev_plot,
+    plot_stdev(stdev, az),
+    packages = c("ggplot2", "tidyterra", "ggtext", "scales")
+  )
+)
+
+targets_comparison_summary <- tar_plan(
+  tar_map(
+    values = list(
+      subsets = syms(c(
+        "az", "forest", "wilderness", "grazing", "pima"
+      ))
+    ),
+    tar_target(
+      summary_stdev,
+      summarize_stdev(stdev, subsets)
+    )
+  )
+)
+
+targets_comparison_summary_combine <- tar_plan(
+  tar_combine(
+    summary_stdev,
+    targets_comparison_summary, #combine all the targets defined above
+    command = dplyr::bind_rows(!!!.x) |> 
+      arrange(subset, product)
+  ),
+  tar_file(
+    summary_stdev_csv,
+    tar_write_csv(summary_stdev, "output/comparison/stdev_summary.csv"),
+    packages = c("readr")
+  )
+)
 
 
 # # Render .Qmd documents
-render <- tar_plan(
+targets_render <- tar_plan(
   tar_quarto(readme, "README.qmd"),
   # tar_quarto(report, "docs/index.qmd")
 )
@@ -299,5 +343,9 @@ list(
   targets_slope_summary_combine,
   targets_slope_summary_plot,
   
-  render
+  targets_comparison,
+  targets_comparison_summary,
+  targets_comparison_summary_combine,
+  
+  targets_render
 )
