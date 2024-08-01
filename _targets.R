@@ -318,6 +318,13 @@ targets_comparison_summary_combine <- tar_plan(
   )
 )
 
+targets_plot_subsets <- tar_plan(
+  tar_file(
+    subset_map,
+    plot_subsets(az, pima, grazing, wilderness, forest),
+    packages = c("ggplot2", "patchwork", "tidyterra", "forcats", "dplyr", "gtable")
+  )
+)
 
 # # Render .Qmd documents
 targets_render <- tar_plan(
@@ -347,5 +354,6 @@ list(
   targets_comparison_summary,
   targets_comparison_summary_combine,
   
-  targets_render
+  targets_render,
+  targets_plot_subsets
 )
